@@ -18,6 +18,7 @@
     * [Descriptions](#descriptions)
     * [Deployed Addresses](#deployed-addresses)
         * [Kovan](#kovan)
+* [Contract Interactions](#contract-interactions)
 * [Protocol Specification](#protocol-specification)
     * [Message Format](#message-format)
 * [Setup](#setup)
@@ -27,7 +28,7 @@
 
 ## Architecture
 
-<img src="https://docs.google.com/drawings/d/18BvwiMAJhQ8g_LQ5sLagnfLh3UzVlmTcIrDBdCSLxo0/pub?w=1002&h=548" />
+<img src="./contract_architecture.svg" />
 
 ## Contracts
 
@@ -37,7 +38,7 @@
 Exchange contains all business logic associated with executing trades and cancelling orders. Exchange accepts orders that conform to 0x message format, allowing for off-chain order relay with on-chain settlement. Exchange is designed to be replaced as protocol improvements are adopted over time. It follows that Exchange does not have direct access to ERC20 token allowances; instead, all transfers are carried out by Proxy on behalf of Exchange.
 
 #### [Proxy.sol](https://github.com/0xProject/contracts/tree/master/contracts/Proxy.sol)
-Proxy is analagous to a valve that may be opened or shut by MultiSigWalletWithTimeLock, either allowing or preventing Exchange from executing trades. Proxy plays a key role in 0x protocol's update mechanism: old versions of the Exchange contract may be deprecated, preventing them from executing further trades. New and improved versions of the Exchange contract are given permission to execute trades through decentralized governance implemented within a DAO (for now we use MultiSigWallet as a placeholder for DAO).
+Proxy is analogous to a valve that may be opened or shut by MultiSigWalletWithTimeLock, either allowing or preventing Exchange from executing trades. Proxy plays a key role in 0x protocol's update mechanism: old versions of the Exchange contract may be deprecated, preventing them from executing further trades. New and improved versions of the Exchange contract are given permission to execute trades through decentralized governance implemented within a DAO (for now we use MultiSigWallet as a placeholder for DAO).
 
 #### [MultiSigWalletWithTimeLock.sol](https://github.com/0xProject/contracts/tree/master/contracts/MultiSigWalletWithTimeLock.sol)
 MultiSigWalletWithTimeLock is a temporary placeholder contract that will be replaced by a thoroughly researched, tested and audited DAO. MultiSigWalletWithTimeLock is based upon the [MultiSigWallet](https://github.com/ConsenSys/MultiSigWallet) contract developed by the Gnosis team, but with an added mandatory time delay between when a proposal is approved and when that proposal may be executed. This speed bump ensures that the multi sig owners cannot conspire to push through a change to 0x protocol without end users having sufficient time to react. MultiSigWalletWithTimeLock is the only entity with permission to grant or revoke access to the Proxy and, by extension, ERC20 token allowances. MultiSigWalletWithTimeLock is assigned as the `owner` of Proxy and, once a suitable DAO is developed, MultiSigWalletWithTimeLock will call `Proxy.transferOwnership(DAO)` to transfer permissions to the DAO.
@@ -53,6 +54,16 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 * Proxy.sol: [0x946a1c437fb5a61bd5c95416346e684c802c5d2a](https://kovan.etherscan.io/address/0x946a1c437fb5a61bd5c95416346e684c802c5d2a)
 * MultiSigWalletWithTimeLock.sol: [0xa9a207b3df3f0d3ca33acf399e9af5db5902db39](https://kovan.etherscan.io/address/0xa9a207b3df3f0d3ca33acf399e9af5db5902db39)
 * TokenRegistry.sol: [0x0fea265f59495859467e648ec99a87549aa6ede0](https://kovan.etherscan.io/address/0x0fea265f59495859467e648ec99a87549aa6ede0)
+
+## Contract Interactions
+
+### Trade Execution
+
+<img src="./trade_execution.png" />
+
+### Upgrading the Exchange Contract
+
+### Upgrading the Governance Contract
 
 ## Protocol Specification
 
