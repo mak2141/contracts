@@ -61,9 +61,57 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 
 <img src="./trade_execution.png" />
 
+**Transaction #1**
+1. Exchange.fillOrder(order, value)
+2. Proxy.transferViaProxy(token, from, to, value)
+3. Token(token).transferFrom(from, to, value)
+4. Token: (bool response)
+5. Proxy: (bool response)
+6. Proxy.transferViaProxy(token, from, to, value)
+7. Token(token).transferFrom(from, to, value)
+8. Token: (bool response)
+9. Proxy: (bool response)
+10. Exchange: (bool response)
+
 ### Upgrading the Exchange Contract
 
+<img src="./upgrade_exchange.png" />
+
+**Transaction #1**
+1. Exchangev2 => Proxy.transferFrom(token, from, to, value) 🚫
+
+**Transaction #2**
+2. DAO.submitTransaction(destination, bytes)
+
+**Transaction #3 (one tx per stakeholder)**
+3. DAO.confirmTransaction(transactionId)
+
+**Transaction #4**
+4. DAO.executeTransaction(transactionId)
+5. DAO => Proxy.addAuthorizedAddress(Exchangev2)
+
+**Transaction #5**
+6. Exchangev2 => Proxy.transferFrom(token, from, to, value) ✅
+
 ### Upgrading the Governance Contract
+
+<img src="./upgrade_governance.png" />
+
+**Transaction #1**
+1. DAOv2 => Proxy.doSomething(...) 🚫
+
+**Transaction #2**
+2. DAOv1.submitTransaction(destination, bytes)
+
+**Transaction #3 (one tx per stakeholder)**
+3. DAOv1.confirmTransaction(transactionId)
+
+**Transaction #4**
+4. DAOv1.executeTransaction(transactionId)
+5. DAOv1 => Proxy.transferOwnership(DAOv2)
+
+**Transaction #5**
+6. DAOv2 => Proxy.doSomething(...)  ✅
 
 ## Protocol Specification
 
