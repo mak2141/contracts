@@ -75,42 +75,52 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 
 ### Upgrading the Exchange Contract
 
-<img src="./upgrade_exchange.png" />
+<img src="./upgrade_exchange.png" height="350" />
 
 **Transaction #1**
+
 1. Exchangev2 => Proxy.transferFrom(token, from, to, value) 🚫
 
 **Transaction #2**
+
 2. DAO.submitTransaction(destination, bytes)
 
 **Transaction #3 (one tx per stakeholder)**
+
 3. DAO.confirmTransaction(transactionId)
 
 **Transaction #4**
+
 4. DAO.executeTransaction(transactionId)
 5. DAO => Proxy.addAuthorizedAddress(Exchangev2)
 
 **Transaction #5**
+
 6. Exchangev2 => Proxy.transferFrom(token, from, to, value) ✅
 
 ### Upgrading the Governance Contract
 
-<img src="./upgrade_governance.png" />
+<img src="./upgrade_governance.png" height="350" />
 
 **Transaction #1**
+
 1. DAOv2 => Proxy.doSomething(...) 🚫
 
 **Transaction #2**
+
 2. DAOv1.submitTransaction(destination, bytes)
 
 **Transaction #3 (one tx per stakeholder)**
+
 3. DAOv1.confirmTransaction(transactionId)
 
 **Transaction #4**
+
 4. DAOv1.executeTransaction(transactionId)
 5. DAOv1 => Proxy.transferOwnership(DAOv2)
 
 **Transaction #5**
+
 6. DAOv2 => Proxy.doSomething(...)  ✅
 
 ## Protocol Specification
