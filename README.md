@@ -18,7 +18,6 @@
     * [Descriptions](#descriptions)
     * [Deployed Addresses](#deployed-addresses)
         * [Kovan](#kovan)
-        * [Ropsten](#ropsten)
         * [Mainnet](#mainnet)
     * [Contract Interactions](#contract-interactions)
 * [Protocol Specification](#protocol-specification)
