@@ -28,7 +28,7 @@
 
 ## Architecture
 
-<img src="./contract_architecture.svg" />
+<img src="https://docs.google.com/drawings/d/18BvwiMAJhQ8g_LQ5sLagnfLh3UzVlmTcIrDBdCSLxo0/pub?w=1002&h=548" />
 
 ## Contracts
 
