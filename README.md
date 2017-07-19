@@ -1,4 +1,4 @@
-<img src="https://github.com/0xProject/branding/blob/master/0x_Black_CMYK.png" width="200px" >
+<img src="https://github.com/0xProject/branding/blob/master/Icon_Black_CMYK.png" width="200px" >
 
 ---
 
@@ -15,7 +15,6 @@
 
 * [Architecture](#architecture)
 * [Contracts](#contracts)
-    * [Descriptions](#descriptions)
     * [Deployed Addresses](#deployed-addresses)
         * [Kovan](#kovan)
         * [Mainnet](#mainnet)
