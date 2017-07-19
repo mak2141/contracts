@@ -18,7 +18,9 @@
     * [Descriptions](#descriptions)
     * [Deployed Addresses](#deployed-addresses)
         * [Kovan](#kovan)
-* [Contract Interactions](#contract-interactions)
+        * [Ropsten](#ropsten)
+        * [Mainnet](#mainnet)
+    * [Contract Interactions](#contract-interactions)
 * [Protocol Specification](#protocol-specification)
     * [Message Format](#message-format)
 * [Setup](#setup)
@@ -55,9 +57,13 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 * MultiSigWalletWithTimeLock.sol: [0xa9a207b3df3f0d3ca33acf399e9af5db5902db39](https://kovan.etherscan.io/address/0xa9a207b3df3f0d3ca33acf399e9af5db5902db39)
 * TokenRegistry.sol: [0x0fea265f59495859467e648ec99a87549aa6ede0](https://kovan.etherscan.io/address/0x0fea265f59495859467e648ec99a87549aa6ede0)
 
-## Contract Interactions
+#### Ropsten
 
-### Trade Execution
+#### Mainnet
+
+### Contract Interactions
+
+#### Trade Execution
 
 <img src="./trade_execution.png" />
 
@@ -73,7 +79,7 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 9. Proxy: (bool response)
 10. Exchange: (bool response)
 
-### Upgrading the Exchange Contract
+#### Upgrading the Exchange Contract
 
 <img src="./upgrade_exchange.png" height="350" />
 
@@ -98,7 +104,7 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 
 6. Exchangev2 => Proxy.transferFrom(token, from, to, value) ✅
 
-### Upgrading the Governance Contract
+#### Upgrading the Governance Contract
 
 <img src="./upgrade_governance.png" height="350" />
 
