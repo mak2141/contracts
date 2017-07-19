@@ -67,7 +67,9 @@ To be deployed August 2017.
 
 ### Contract Interactions
 
-#### Trade Execution
+The diagrams provided below demonstrate the interactions that occur between the various 0x smart contracts when executing trades or when upgrading exchange or governance logic. Arrows represent external function calls between Ethereum accounts (circles) or smart contracts (rectangles): arrows are directed from the caller to the callee.
+
+#### Trade Execution (excl. fees)
 
 <img src="./trade_execution.png" />
 
