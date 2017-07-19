@@ -57,9 +57,14 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 * MultiSigWalletWithTimeLock.sol: [0xa9a207b3df3f0d3ca33acf399e9af5db5902db39](https://kovan.etherscan.io/address/0xa9a207b3df3f0d3ca33acf399e9af5db5902db39)
 * TokenRegistry.sol: [0x0fea265f59495859467e648ec99a87549aa6ede0](https://kovan.etherscan.io/address/0x0fea265f59495859467e648ec99a87549aa6ede0)
 
-#### Ropsten
-
 #### Mainnet
+
+To be deployed August 2017.
+
+* Exchange.sol: TBD
+* Proxy.sol: TBD
+* MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress.sol: TBD
+* TokenRegistry.sol: TBD
 
 ### Contract Interactions
 
@@ -67,14 +72,14 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 
 <img src="./trade_execution.png" />
 
-**Transaction #1**
-1. Exchange.fillOrder(order, value)
-2. Proxy.transferViaProxy(token, from, to, value)
-3. Token(token).transferFrom(from, to, value)
+Transaction #1
+1. `Exchange.fillOrder(order, value)`
+2. `Proxy.transferViaProxy(token, from, to, value)`
+3. `Token(token).transferFrom(from, to, value)`
 4. Token: (bool response)
 5. Proxy: (bool response)
-6. Proxy.transferViaProxy(token, from, to, value)
-7. Token(token).transferFrom(from, to, value)
+6. `Proxy.transferViaProxy(token, from, to, value)`
+7. `Token(token).transferFrom(from, to, value)`
 8. Token: (bool response)
 9. Proxy: (bool response)
 10. Exchange: (bool response)
@@ -83,51 +88,51 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 
 <img src="./upgrade_exchange.png" height="350" />
 
-**Transaction #1**
+Transaction #1
 
-1. Exchangev2 => Proxy.transferFrom(token, from, to, value) 🚫
+1. `Proxy.transferFrom(token, from, to, value)` 🚫
 
-**Transaction #2**
+Transaction #2
 
-2. DAO.submitTransaction(destination, bytes)
+2. `DAO.submitTransaction(destination, bytes)`
 
-**Transaction #3 (one tx per stakeholder)**
+Transaction #3 (one tx per stakeholder)
 
-3. DAO.confirmTransaction(transactionId)
+3. `DAO.confirmTransaction(transactionId)`
 
-**Transaction #4**
+Transaction #4
 
-4. DAO.executeTransaction(transactionId)
-5. DAO => Proxy.addAuthorizedAddress(Exchangev2)
+4. `DAO.executeTransaction(transactionId)`
+5. `Proxy.addAuthorizedAddress(Exchangev2)`
 
-**Transaction #5**
+Transaction #5
 
-6. Exchangev2 => Proxy.transferFrom(token, from, to, value) ✅
+6. `Proxy.transferFrom(token, from, to, value)` ✅
 
 #### Upgrading the Governance Contract
 
 <img src="./upgrade_governance.png" height="350" />
 
-**Transaction #1**
+Transaction #1
 
-1. DAOv2 => Proxy.doSomething(...) 🚫
+1. `Proxy.doSomething(...)` 🚫
 
-**Transaction #2**
+Transaction #2
 
-2. DAOv1.submitTransaction(destination, bytes)
+2. `DAOv1.submitTransaction(destination, bytes)`
 
-**Transaction #3 (one tx per stakeholder)**
+Transaction #3 (one tx per stakeholder)
 
-3. DAOv1.confirmTransaction(transactionId)
+3. `DAOv1.confirmTransaction(transactionId)`
 
-**Transaction #4**
+Transaction #4
 
-4. DAOv1.executeTransaction(transactionId)
-5. DAOv1 => Proxy.transferOwnership(DAOv2)
+4. `DAOv1.executeTransaction(transactionId)`
+5. `Proxy.transferOwnership(DAOv2)`
 
-**Transaction #5**
+Transaction #5
 
-6. DAOv2 => Proxy.doSomething(...)  ✅
+6. `Proxy.doSomething(...)`  ✅
 
 ## Protocol Specification
 
