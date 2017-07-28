@@ -69,7 +69,8 @@ contract('TokenSale', (accounts: string[]) => {
     return new BigNumber(blockTimestamp);
   };
 
-  const getHardCodedEthCapPerAddress = (baseEthCapPerAddress: BigNumber.BigNumber, periodNumber: number): BigNumber.BigNumber => {
+  const getHardCodedEthCapPerAddress = (baseEthCapPerAddress: BigNumber.BigNumber,
+                                        periodNumber: number): BigNumber.BigNumber => {
     let multiplier: number;
     if (periodNumber > 4) {
       throw new Error('Only period numbers up to 4 are hard coded into getHardCodedEthCapPerAddress');
@@ -369,7 +370,8 @@ contract('TokenSale', (accounts: string[]) => {
       }
     });
 
-    it('should change registration status of an address if called by owner before sale has been initialized', async () => {
+    it('should change registration status of an address if called by owner before sale has been initialized',
+      async () => {
       let isRegistered = true;
       await tokenSale.changeRegistrationStatus(taker, isRegistered, { from: owner });
       let isTakerRegistered = await tokenSale.registered.call(taker);
@@ -419,7 +421,8 @@ contract('TokenSale', (accounts: string[]) => {
       }
     });
 
-    it('should change registration statuses of addresses if called by owner before sale has been initialized', async () => {
+    it('should change registration statuses of addresses if called by owner before sale has been initialized',
+      async () => {
       let isRegistered = true;
       await tokenSale.changeRegistrationStatuses([maker, taker], isRegistered, { from: owner });
       let isMakerRegistered = await tokenSale.registered.call(maker);
@@ -657,8 +660,8 @@ contract('TokenSale', (accounts: string[]) => {
         assert.equal(finalTakerEthBalance, remainingTakerBalanceAfterFillAndGas);
       });
 
-      it('should fill the remaining ethCapPerAddress and refund difference if sent > than the remaining ethCapPerAddress',
-         async () => {
+      it('should fill the remaining ethCapPerAddress and refund difference if sent > than the remaining \
+          ethCapPerAddress', async () => {
         const initBalances: BalancesByOwner = await dmyBalances.getAsync();
         const initTakerEthBalance = await getEthBalanceAsync(taker);
         const ethValue = add(baseEthCapPerAddress, 1);
@@ -698,7 +701,8 @@ contract('TokenSale', (accounts: string[]) => {
         assert.equal(finalTakerEthBalance, remainingTakerBalanceAfterFillAndGas);
       });
 
-      it('should partial fill, end sale, and refund difference if sender is registered and sent ETH > remaining order ETH', async () => {
+      it('should partial fill, end sale, and refund difference if sender is registered and sent ETH > remaining \
+        order ETH', async () => {
         const initBalances: BalancesByOwner = await dmyBalances.getAsync();
         const initTakerEthBalance = await getEthBalanceAsync(taker);
 
@@ -779,7 +783,8 @@ contract('TokenSale', (accounts: string[]) => {
         let totalEthSpentOnGas = mul(res.receipt.gasUsed, gasPrice);
         let totalFilledZrxValue = ethValue;
         let totalFilledEthValue = ethValue;
-        let remainingTakerBalanceAfterFillAndGas = sub(sub(initTakerEthBalance, totalFilledEthValue), totalEthSpentOnGas);
+        let remainingTakerBalanceAfterFillAndGas = sub(sub(initTakerEthBalance, totalFilledEthValue),
+                                                       totalEthSpentOnGas);
 
         assert.equal(finalBalances[maker][validOrder.params.makerToken],
                      sub(initBalances[maker][validOrder.params.makerToken], totalFilledZrxValue));
