@@ -15,13 +15,14 @@ const CAP_PER_ADDRESS = 12000000000000000000; // 12 ETH
 
 const accounts = web3.eth.accounts;
 
-let proxy: ContractInstance;
+let tokenTransferProxy: ContractInstance;
 let exchange: ContractInstance;
 let zrxToken: ContractInstance;
 let etherToken: ContractInstance;
 let tokenSale: ContractInstance;
 let order: Order|SignedOrder;
 let saleStartTimestamp: number;
+const makerTokenAmount = ZeroEx.toBaseUnitAmount(new BigNumber(500000000), 18);
 module.exports = (deployer: any, network: string) => {
   deployer.then(() => {
     return Promise.all([
@@ -30,7 +31,7 @@ module.exports = (deployer: any, network: string) => {
       ZRXToken.deployed(),
       EtherToken.deployed(),
     ]).then((instances: ContractInstance[]) => {
-      [proxy, exchange, zrxToken, etherToken] = instances;
+      [tokenTransferProxy, exchange, zrxToken, etherToken] = instances;
     });
   }).then(() => {
       return deployer.deploy(TokenSale, exchange.address, zrxToken.address, etherToken.address, {
@@ -43,6 +44,11 @@ module.exports = (deployer: any, network: string) => {
     return web3.eth.getBlock('latest');
   }).then((latestBlock: any) => {
     saleStartTimestamp = latestBlock.timestamp + 20; // Add 20 sec.
+    const isRegistered = true;
+    return tokenSale.changeRegistrationStatuses(accounts, isRegistered);
+  }).then(() => {
+    return zrxToken.approve(tokenTransferProxy.address, makerTokenAmount);
+  }).then(() => {
     order = {
       exchangeContractAddress: exchange.address,
       expirationUnixTimestampSec: new BigNumber(moment().add(1, 'year').unix()),
@@ -50,7 +56,7 @@ module.exports = (deployer: any, network: string) => {
       maker: accounts[0],
       makerFee: new BigNumber(0),
       makerTokenAddress: zrxToken.address,
-      makerTokenAmount: ZeroEx.toBaseUnitAmount(new BigNumber(500000000), 18),
+      makerTokenAmount,
       salt: ZeroEx.generatePseudoRandomSalt(),
       taker: tokenSale.address,
       takerFee: new BigNumber(0),
