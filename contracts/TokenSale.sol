@@ -10,6 +10,7 @@ contract TokenSale is Ownable, SafeMath {
 
     event SaleInitialized(uint startTimeInSec);
     event SaleFinished(uint endTimeInSec);
+    event ContributionReceived(uint ethAmount);
 
     uint public constant TIME_PERIOD_IN_SEC = 1 days;
 
@@ -195,6 +196,8 @@ contract TokenSale is Ownable, SafeMath {
             SaleFinished(block.timestamp);
             return;
         }
+
+        ContributionReceived(ethToFill);
     }
 
     /// @dev Changes registration status of an address for participation.
