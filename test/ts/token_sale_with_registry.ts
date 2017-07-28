@@ -270,7 +270,8 @@ contract('TokenSaleWithRegistry', (accounts: string[]) => {
       }
     });
 
-    it('should change registration status of an address if called by owner before sale has been initialized', async () => {
+    it('should change registration status of an address if called by owner before sale has been initialized',
+       async () => {
       let isRegistered = true;
       await tokenSaleWithRegistry.changeRegistrationStatus(taker, isRegistered, { from: owner });
       let isTakerRegistered = await tokenSaleWithRegistry.registered.call(taker);
@@ -313,7 +314,8 @@ contract('TokenSaleWithRegistry', (accounts: string[]) => {
       }
     });
 
-    it('should change registration statuses of addresses if called by owner before sale has been initialized', async () => {
+    it('should change registration statuses of addresses if called by owner before sale has been initialized',
+       async () => {
       let isRegistered = true;
       await tokenSaleWithRegistry.changeRegistrationStatuses([maker, taker], isRegistered, { from: owner });
       let isMakerRegistered = await tokenSaleWithRegistry.registered.call(maker);
