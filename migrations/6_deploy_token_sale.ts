@@ -64,7 +64,6 @@ module.exports = (deployer: any, network: string) => {
         order.takerTokenAddress,
         order.feeRecipient,
       ];
-      console.log('orderAddresses', orderAddresses);
       const orderValues = [
           order.makerTokenAmount,
           order.takerTokenAmount,
@@ -73,11 +72,9 @@ module.exports = (deployer: any, network: string) => {
           order.expirationUnixTimestampSec,
           order.salt,
       ];
-      console.log('orderValues', orderValues);
       const v = ecSignature.v;
       const r = ecSignature.r;
       const s = ecSignature.s;
-      console.log('v', v, 'r', r, 's', s);
 
       return tokenSaleWithRegistry.init(orderAddresses, orderValues, v, r, s, {
         from: accounts[0],
