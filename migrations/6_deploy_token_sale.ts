@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 import * as BigNumber from 'bignumber.js';
 import {ZeroEx, Order, SignedOrder, ECSignature} from '0x.js';
+import { RPC } from '../util/rpc';
 import { ContractInstance } from '../util/types';
 import { Artifacts } from '../util/artifacts';
 const {
@@ -64,7 +65,9 @@ module.exports = (deployer: any, network: string) => {
       takerTokenAmount: ZeroEx.toBaseUnitAmount(new BigNumber(120000), 18),
     };
     const zeroEx = new ZeroEx(web3.currentProvider);
-    const orderHash = zeroEx.getOrderHashHex(order);
+    const orderHash = ZeroEx.getOrderHashHex(order);
+    console.log('exchange', exchange.address);
+    console.log('orderHash', orderHash);
     return zeroEx.signOrderHashAsync(orderHash, accounts[0]);
   }).then((ecSignature: ECSignature) => {
     // Order Details
@@ -89,6 +92,14 @@ module.exports = (deployer: any, network: string) => {
 
     return tokenSale.initializeSale(orderAddresses, orderValues, v, r, s, saleStartTimestamp, CAP_PER_ADDRESS, {
       from: accounts[0],
+    });
+  }).then(() => {
+      const rpc = new RPC();
+      return rpc.increaseTimeAsync(50);
+  }).then(() => {
+    return tokenSale.fillOrderWithEth({
+        from: accounts[1],
+        value: 100000000000000000,
     });
   });
 };

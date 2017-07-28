@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"0x.js@0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/0x.js/-/0x.js-0.8.0.tgz#1196ba54f3d260e88eafa82f36ad0c8c2b14ddfc"
+"0x.js@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/0x.js/-/0x.js-0.9.0.tgz#14f0b49649e8841d68a51184fca9bcd5ec4914e7"
   dependencies:
     bignumber.js "^4.0.2"
     compare-versions "^3.0.1"
@@ -16,7 +16,7 @@
     lodash "^4.17.4"
     publish-release "^1.3.3"
     truffle-contract "^2.0.1"
-    web3 "^0.19.0"
+    web3 "^0.20.0"
 
 "@types/bignumber.js@^4.0.2":
   version "4.0.2"
@@ -3523,9 +3523,9 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
-typescript@^2.2.2:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.3.4.tgz#3d38321828231e434f287514959c37a82b629f42"
+typescript@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.4.2.tgz#f8395f85d459276067c988aa41837a8f82870844"
 
 uglify-js@^2.8.29:
   version "2.8.29"
@@ -3643,17 +3643,7 @@ web3-typescript-typings@^0.3.0:
   dependencies:
     bignumber.js "^4.0.2"
 
-web3@^0.19.0:
-  version "0.19.1"
-  resolved "https://registry.yarnpkg.com/web3/-/web3-0.19.1.tgz#e763d5b1107c4bc24abd4f8cbee1ba3659e6eb31"
-  dependencies:
-    bignumber.js "^4.0.2"
-    crypto-js "^3.1.4"
-    utf8 "^2.1.1"
-    xhr2 "*"
-    xmlhttprequest "*"
-
-web3@^0.20.1:
+web3@^0.20.0, web3@^0.20.1:
   version "0.20.1"
   resolved "https://registry.yarnpkg.com/web3/-/web3-0.20.1.tgz#fb262e9ad71552167a6af012fdd420de017032f0"
   dependencies:
