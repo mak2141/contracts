@@ -15,14 +15,14 @@
   limitations under the License.
 
 */
-pragma solidity ^0.4.11;
+pragma solidity 0.4.11;
 
 import "./base/Token.sol";
 import "./base/Ownable.sol";
 
-/// @title Proxy - Transfers tokens on behalf of contracts that have been approved via decentralized governance.
+/// @title TokenTransferProxy - Transfers tokens on behalf of contracts that have been approved via decentralized governance.
 /// @author Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com>
-contract Proxy is Ownable {
+contract TokenTransferProxy is Ownable {
 
     /// @dev Only authorized addresses can invoke functions with this modifier.
     modifier onlyAuthorized {
@@ -57,7 +57,7 @@ contract Proxy is Ownable {
         public
         onlyOwner
         targetNotAuthorized(target)
-        returns (bool success)
+        returns (bool)
     {
         authorized[target] = true;
         authorities.push(target);
@@ -72,7 +72,7 @@ contract Proxy is Ownable {
         public
         onlyOwner
         targetAuthorized(target)
-        returns (bool success)
+        returns (bool)
     {
         delete authorized[target];
         for (uint i = 0; i < authorities.length; i++) {
@@ -99,7 +99,7 @@ contract Proxy is Ownable {
         uint value)
         public
         onlyAuthorized
-        returns (bool success)
+        returns (bool)
     {
         return Token(token).transferFrom(from, to, value);
     }

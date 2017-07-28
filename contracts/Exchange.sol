@@ -15,9 +15,9 @@
   limitations under the License.
 
 */
-pragma solidity ^0.4.11;
+pragma solidity 0.4.11;
 
-import "./Proxy.sol";
+import "./TokenTransferProxy.sol";
 import "./base/Token.sol";
 import "./base/SafeMath.sol";
 
@@ -33,10 +33,11 @@ contract Exchange is SafeMath {
         INSUFFICIENT_BALANCE_OR_ALLOWANCE // Insufficient balance or allowance for token transfer
     }
 
-    uint16 constant EXTERNAL_QUERY_GAS_LIMIT = 4999;    // Changes to state require at least 5000 gas
+    string constant public VERSION = "1.0.0";
+    uint16 constant public EXTERNAL_QUERY_GAS_LIMIT = 4999;    // Changes to state require at least 5000 gas
 
     address public ZRX_TOKEN_CONTRACT;
-    address public PROXY_CONTRACT;
+    address public TOKEN_TRANSFER_PROXY_CONTRACT;
 
     // Mappings of orderHash => amounts of takerTokenAmount filled or cancelled.
     mapping (bytes32 => uint) public filled;
@@ -52,7 +53,7 @@ contract Exchange is SafeMath {
         uint filledTakerTokenAmount,
         uint paidMakerFee,
         uint paidTakerFee,
-        bytes32 indexed tokens, // sha3(makerToken, takerToken), allows subscribing to a token pair
+        bytes32 indexed tokens, // keccak256(makerToken, takerToken), allows subscribing to a token pair
         bytes32 orderHash
     );
 
@@ -83,9 +84,9 @@ contract Exchange is SafeMath {
         bytes32 orderHash;
     }
 
-    function Exchange(address _ZRX_TOKEN_CONTRACT, address _PROXY_CONTRACT) {
-        ZRX_TOKEN_CONTRACT = _ZRX_TOKEN_CONTRACT;
-        PROXY_CONTRACT = _PROXY_CONTRACT;
+    function Exchange(address _zrxToken, address _tokenTransferProxy) {
+        ZRX_TOKEN_CONTRACT = _zrxToken;
+        TOKEN_TRANSFER_PROXY_CONTRACT = _tokenTransferProxy;
     }
 
     /*
@@ -162,13 +163,13 @@ contract Exchange is SafeMath {
         uint paidMakerFee;
         uint paidTakerFee;
         filled[order.orderHash] = safeAdd(filled[order.orderHash], filledTakerTokenAmount);
-        assert(transferViaProxy(
+        require(transferViaTokenTransferProxy(
             order.makerToken,
             order.maker,
             msg.sender,
             filledMakerTokenAmount
         ));
-        assert(transferViaProxy(
+        require(transferViaTokenTransferProxy(
             order.takerToken,
             msg.sender,
             order.maker,
@@ -177,7 +178,7 @@ contract Exchange is SafeMath {
         if (order.feeRecipient != address(0)) {
             if (order.makerFee > 0) {
                 paidMakerFee = getPartialAmount(filledTakerTokenAmount, order.takerTokenAmount, order.makerFee);
-                assert(transferViaProxy(
+                require(transferViaTokenTransferProxy(
                     ZRX_TOKEN_CONTRACT,
                     order.maker,
                     order.feeRecipient,
@@ -186,7 +187,7 @@ contract Exchange is SafeMath {
             }
             if (order.takerFee > 0) {
                 paidTakerFee = getPartialAmount(filledTakerTokenAmount, order.takerTokenAmount, order.takerFee);
-                assert(transferViaProxy(
+                require(transferViaTokenTransferProxy(
                     ZRX_TOKEN_CONTRACT,
                     msg.sender,
                     order.feeRecipient,
@@ -205,7 +206,7 @@ contract Exchange is SafeMath {
             filledTakerTokenAmount,
             paidMakerFee,
             paidTakerFee,
-            sha3(order.makerToken, order.takerToken),
+            keccak256(order.makerToken, order.takerToken),
             order.orderHash
         );
         return filledTakerTokenAmount;
@@ -221,7 +222,7 @@ contract Exchange is SafeMath {
         uint[6] orderValues,
         uint canceltakerTokenAmount)
         public
-        returns (uint cancelledTakerTokenAmount)
+        returns (uint)
     {
         Order memory order = Order({
             maker: orderAddresses[0],
@@ -246,7 +247,7 @@ contract Exchange is SafeMath {
         }
 
         uint remainingTakerTokenAmount = safeSub(order.takerTokenAmount, getUnavailableTakerTokenAmount(order.orderHash));
-        cancelledTakerTokenAmount = min256(canceltakerTokenAmount, remainingTakerTokenAmount);
+        uint cancelledTakerTokenAmount = min256(canceltakerTokenAmount, remainingTakerTokenAmount);
         if (cancelledTakerTokenAmount == 0) {
             LogError(uint8(Errors.ORDER_FULLY_FILLED_OR_CANCELLED), order.orderHash);
             return 0;
@@ -261,7 +262,7 @@ contract Exchange is SafeMath {
             order.takerToken,
             getPartialAmount(cancelledTakerTokenAmount, order.takerTokenAmount, order.makerTokenAmount),
             cancelledTakerTokenAmount,
-            sha3(order.makerToken, order.takerToken),
+            keccak256(order.makerToken, order.takerToken),
             order.orderHash
         );
         return cancelledTakerTokenAmount;
@@ -287,9 +288,9 @@ contract Exchange is SafeMath {
         bytes32 r,
         bytes32 s)
         public
-        returns (bool success)
+        returns (bool)
     {
-        assert(fillOrder(
+        require(fillOrder(
             orderAddresses,
             orderValues,
             fillTakerTokenAmount,
@@ -319,7 +320,7 @@ contract Exchange is SafeMath {
         bytes32[] r,
         bytes32[] s)
         public
-        returns (bool success)
+        returns (bool)
     {
         for (uint i = 0; i < orderAddresses.length; i++) {
             fillOrder(
@@ -351,7 +352,7 @@ contract Exchange is SafeMath {
         bytes32[] r,
         bytes32[] s)
         public
-        returns (bool success)
+        returns (bool)
     {
         for (uint i = 0; i < orderAddresses.length; i++) {
             fillOrKillOrder(
@@ -384,9 +385,9 @@ contract Exchange is SafeMath {
         bytes32[] r,
         bytes32[] s)
         public
-        returns (uint filledTakerTokenAmount)
+        returns (uint)
     {
-        filledTakerTokenAmount = 0;
+        uint filledTakerTokenAmount = 0;
         for (uint i = 0; i < orderAddresses.length; i++) {
             require(orderAddresses[i][3] == orderAddresses[0][3]); // takerToken must be the same for each order
             filledTakerTokenAmount = safeAdd(filledTakerTokenAmount, fillOrder(
@@ -413,7 +414,7 @@ contract Exchange is SafeMath {
         uint[6][] orderValues,
         uint[] cancelTakerTokenAmounts)
         public
-        returns (bool success)
+        returns (bool)
     {
         for (uint i = 0; i < orderAddresses.length; i++) {
             cancelOrder(
@@ -436,7 +437,7 @@ contract Exchange is SafeMath {
     function getOrderHash(address[5] orderAddresses, uint[6] orderValues)
         public
         constant
-        returns (bytes32 orderHash)
+        returns (bytes32)
     {
         return keccak256(
             address(this),
@@ -469,7 +470,7 @@ contract Exchange is SafeMath {
         bytes32 s)
         public
         constant
-        returns (bool isValid)
+        returns (bool)
     {
         return signer == ecrecover(
             keccak256("\x19Ethereum Signed Message:\n32", hash),
@@ -487,7 +488,7 @@ contract Exchange is SafeMath {
     function isRoundingError(uint numerator, uint denominator, uint target)
         public
         constant
-        returns (bool isError)
+        returns (bool)
     {
         return (target < 10**3 && mulmod(target, numerator, denominator) != 0);
     }
@@ -500,7 +501,7 @@ contract Exchange is SafeMath {
     function getPartialAmount(uint numerator, uint denominator, uint target)
         public
         constant
-        returns (uint partialValue)
+        returns (uint)
     {
         return safeDiv(safeMul(numerator, target), denominator);
     }
@@ -511,7 +512,7 @@ contract Exchange is SafeMath {
     function getUnavailableTakerTokenAmount(bytes32 orderHash)
         public
         constant
-        returns (uint unavailableTakerTokenAmount)
+        returns (uint)
     {
         return safeAdd(filled[orderHash], cancelled[orderHash]);
     }
@@ -521,21 +522,21 @@ contract Exchange is SafeMath {
     * Internal functions
     */
 
-    /// @dev Transfers a token using PROXY_CONTRACT transferFrom function.
+    /// @dev Transfers a token using TokenTransferProxy transferFrom function.
     /// @param token Address of token to transferFrom.
     /// @param from Address transfering token.
     /// @param to Address receiving token.
     /// @param value Amount of token to transfer.
     /// @return Success of token transfer.
-    function transferViaProxy(
+    function transferViaTokenTransferProxy(
         address token,
         address from,
         address to,
         uint value)
         internal
-        returns (bool success)
+        returns (bool)
     {
-        return Proxy(PROXY_CONTRACT).transferFrom(token, from, to, value);
+        return TokenTransferProxy(TOKEN_TRANSFER_PROXY_CONTRACT).transferFrom(token, from, to, value);
     }
 
     /// @dev Checks if any order transfers will fail.
@@ -545,7 +546,7 @@ contract Exchange is SafeMath {
     function isTransferable(Order order, uint fillTakerTokenAmount)
         internal
         constant
-        returns (bool isTransferable)
+        returns (bool)
     {
         address taker = msg.sender;
         uint fillMakerTokenAmount = getPartialAmount(fillTakerTokenAmount, order.takerTokenAmount, order.makerTokenAmount);
@@ -586,20 +587,20 @@ contract Exchange is SafeMath {
     function getBalance(address token, address owner)
         internal
         constant
-        returns (uint balance)
+        returns (uint)
     {
         return Token(token).balanceOf.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner); // Limit gas to prevent reentrancy
     }
 
-    /// @dev Get allowance of token given to PROXY_CONTRACT by an address.
+    /// @dev Get allowance of token given to TokenTransferProxy by an address.
     /// @param token Address of token.
     /// @param owner Address of owner.
-    /// @return Allowance of token given to PROXY_CONTRACT by owner.
+    /// @return Allowance of token given to TokenTransferProxy by owner.
     function getAllowance(address token, address owner)
         internal
         constant
-        returns (uint allowance)
+        returns (uint)
     {
-        return Token(token).allowance.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner, PROXY_CONTRACT); // Limit gas to prevent reentrancy
+        return Token(token).allowance.gas(EXTERNAL_QUERY_GAS_LIMIT)(owner, TOKEN_TRANSFER_PROXY_CONTRACT); // Limit gas to prevent reentrancy
     }
 }
