@@ -4,11 +4,11 @@ import {ZeroEx, Order, SignedOrder} from '0x.js';
 import { ContractInstance } from '../util/types';
 import { Artifacts } from '../util/artifacts';
 const {
-  Proxy,
+  TokenTransferProxy,
   Exchange,
   ZRXToken,
   EtherToken,
-  TokenSaleWithRegistry,
+  TokenSale,
 } = new Artifacts(artifacts);
 
 const CAP_PER_ADDRESS = 12000000000000000000; // 12 ETH
@@ -19,25 +19,25 @@ let proxy: ContractInstance;
 let exchange: ContractInstance;
 let zrxToken: ContractInstance;
 let etherToken: ContractInstance;
-let tokenSaleWithRegistry: ContractInstance;
+let tokenSale: ContractInstance;
 let order: Order|SignedOrder;
 module.exports = (deployer: any, network: string) => {
   deployer.then(() => {
     Promise.all([
-      Proxy.deployed(),
+      TokenTransferProxy.deployed(),
       Exchange.deployed(),
       ZRXToken.deployed(),
       EtherToken.deployed(),
     ]).then((instances: ContractInstance[]) => {
       [proxy, exchange, zrxToken, etherToken] = instances;
-      return deployer.deploy(TokenSaleWithRegistry, exchange.address, proxy.address, zrxToken.address,
+      return deployer.deploy(TokenSale, exchange.address, proxy.address, zrxToken.address,
                              etherToken.address, CAP_PER_ADDRESS, {
                                from: accounts[0],
                              });
     }).then(() => {
-      return TokenSaleWithRegistry.deployed();
-    }).then(tokenSaleWithRegistryInstance => {
-      tokenSaleWithRegistry = tokenSaleWithRegistryInstance;
+      return TokenSale.deployed();
+    }).then(tokenSaleInstance => {
+      tokenSale = tokenSaleInstance;
       order = {
         exchangeContractAddress: exchange.address,
         expirationUnixTimestampSec: new BigNumber(moment().add(1, 'year').unix()),
@@ -47,7 +47,7 @@ module.exports = (deployer: any, network: string) => {
         makerTokenAddress: zrxToken.address,
         makerTokenAmount: ZeroEx.toBaseUnitAmount(new BigNumber(500000000), 18),
         salt: ZeroEx.generatePseudoRandomSalt(),
-        taker: tokenSaleWithRegistry.address,
+        taker: tokenSale.address,
         takerFee: new BigNumber(0),
         takerTokenAddress: etherToken.address,
         takerTokenAmount: ZeroEx.toBaseUnitAmount(new BigNumber(120000), 18),
@@ -76,7 +76,7 @@ module.exports = (deployer: any, network: string) => {
       const r = ecSignature.r;
       const s = ecSignature.s;
 
-      return tokenSaleWithRegistry.init(orderAddresses, orderValues, v, r, s, {
+      return tokenSale.init(orderAddresses, orderValues, v, r, s, {
         from: accounts[0],
       });
     });
