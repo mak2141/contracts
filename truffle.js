@@ -9,7 +9,7 @@ module.exports = {
       host: 'localhost',
       port: 8546,
       network_id: '42',
-      gas: 4612388,
+      gas: 4999999,
     },
   },
   test_directory: 'transpiled/test',
