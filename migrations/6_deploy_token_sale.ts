@@ -93,16 +93,11 @@ module.exports = (deployer: any, network: string, accounts: string[]) => {
       const rpc = new RPC();
       return rpc.increaseTimeAsync(100);
   }).then(() => {
-    return tokenSale.fillOrderWithEth.estimateGas({
-        from: accounts[1],
-        value: 100000000000000000,
-    });
-  }).then((estimateGas: any) => {
-      return tokenSale.fillOrderWithEth({
-          from: accounts[1],
-          value: 100000000000000000,
-      });
-  }).then((response: any) => {
-    console.log('response', JSON.stringify(response));
+    if (network === 'development') {
+        return tokenSale.fillOrderWithEth({
+            from: accounts[1],
+            value: 100000000000000000,
+        });
+    }
   });
 };
