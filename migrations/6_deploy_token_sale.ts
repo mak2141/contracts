@@ -66,8 +66,6 @@ module.exports = (deployer: any, network: string) => {
     };
     const zeroEx = new ZeroEx(web3.currentProvider);
     const orderHash = ZeroEx.getOrderHashHex(order);
-    console.log('exchange', exchange.address);
-    console.log('orderHash', orderHash);
     return zeroEx.signOrderHashAsync(orderHash, accounts[0]);
   }).then((ecSignature: ECSignature) => {
     // Order Details
