@@ -14,8 +14,6 @@ const {
 
 const CAP_PER_ADDRESS = 12000000000000000000; // 12 ETH
 
-const accounts = web3.eth.accounts;
-
 let tokenTransferProxy: ContractInstance;
 let exchange: ContractInstance;
 let zrxToken: ContractInstance;
@@ -24,7 +22,7 @@ let tokenSale: ContractInstance;
 let order: Order|SignedOrder;
 let saleStartTimestamp: number;
 const makerTokenAmount = ZeroEx.toBaseUnitAmount(new BigNumber(500000000), 18);
-module.exports = (deployer: any, network: string) => {
+module.exports = (deployer: any, network: string, accounts: string[]) => {
   deployer.then(() => {
     return Promise.all([
       TokenTransferProxy.deployed(),
