@@ -52,25 +52,25 @@ TokenRegistry stores metadata associated with ERC20 tokens. TokenRegistry entrie
 
 #### Kovan
 
-Commit Hash: ?
+Commit Hash: [`e51d4dcb4c8e0d93815e9d2a5c511d60ce017870`](https://github.com/0xProject/contracts/commit/e51d4dcb4c8e0d93815e9d2a5c511d60ce017870)
 
-Branch: ?
+Branch: [`frozenUpdated`](https://github.com/0xProject/contracts/tree/frozenUpdated)
 
-* Exchange.sol: [0x63869171a246622ef8f9234879ce2c06cebd85f6](https://kovan.etherscan.io/address/0x63869171a246622ef8f9234879ce2c06cebd85f6)
-* Proxy.sol: [0x946a1c437fb5a61bd5c95416346e684c802c5d2a](https://kovan.etherscan.io/address/0x946a1c437fb5a61bd5c95416346e684c802c5d2a)
-* MultiSigWalletWithTimeLock.sol: [0xa9a207b3df3f0d3ca33acf399e9af5db5902db39](https://kovan.etherscan.io/address/0xa9a207b3df3f0d3ca33acf399e9af5db5902db39)
-* TokenRegistry.sol: [0x0fea265f59495859467e648ec99a87549aa6ede0](https://kovan.etherscan.io/address/0x0fea265f59495859467e648ec99a87549aa6ede0)
+* Exchange.sol: [0x65fD230Ad8749721724b5Fa9bB855d9FDe4b59ab](https://kovan.etherscan.io/address/0x65fD230Ad8749721724b5Fa9bB855d9FDe4b59ab)
+* Proxy.sol: [0xC00Fd9820Cd2898cC4C054B7bF142De637ad129A](https://kovan.etherscan.io/address/0xC00Fd9820Cd2898cC4C054B7bF142De637ad129A)
+* MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress.sol: [0x6b1A50F0bb5A7995444bD3877B22Dc89C62843Ed](https://kovan.etherscan.io/address/0x6b1A50F0bb5A7995444bD3877B22Dc89C62843Ed)
+* TokenRegistry.sol: [0x4e9aad8184de8833365fea970cd9149372fdf1e6](https://kovan.etherscan.io/address/0x4e9aad8184de8833365fea970cd9149372fdf1e6)
 
 #### Mainnet
 
-Commit Hash: TBD
+Commit Hash: `TBD`
 
-Branch: TBD
+Branch: `TBD`
 
-* Exchange.sol: TBD
-* Proxy.sol: TBD
-* MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress.sol: TBD
-* TokenRegistry.sol: TBD
+* Exchange.sol: `TBD`
+* Proxy.sol: `TBD`
+* MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress.sol: `TBD`
+* TokenRegistry.sol: `TBD`
 
 ### Contract Interactions
 
