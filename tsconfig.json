@@ -16,6 +16,10 @@
         "./globals.d.ts",
         "./util/**/*",
         "./test/**/*",
-        "./migrations/**/*"
+        "./migrations/**/*",
+        "./scripts/**/*"
+    ],
+    "exclude": [
+        "./scripts/solc/solc_bin"
     ]
 }

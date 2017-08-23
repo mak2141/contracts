@@ -1,6 +1,8 @@
 declare module 'bn.js';
 declare module 'ethereumjs-abi';
 declare module 'es6-promisify';
+declare module 'yargs';
+declare module 'solc';
 
 declare module '*.json' {
     const json: any;

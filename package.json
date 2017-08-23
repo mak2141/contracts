@@ -7,9 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./transpiled; tsc",
+    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled; tsc;",
     "test": "npm run transpile; truffle test",
-    "compile": "rm -rf build/contracts; truffle compile",
+    "compile": "npm run transpile; node transpiled/scripts/compile.js",
     "migrate": "npm run transpile; truffle migrate",
     "deploy": "npm run migrate --network kovan",
     "testrpc": "testrpc --networkId 50"
@@ -30,13 +30,16 @@
     "@types/lodash": "^4.14.63",
     "@types/node": "^7.0.13",
     "@types/request-promise-native": "^1.0.2",
+    "@types/semver": "^5.4.0",
     "copyfiles": "^1.2.0",
     "dirty-chai": "^2.0.0",
-    "solc": "^0.4.11",
     "ethereumjs-testrpc": "4.0.1",
+    "semver": "^5.4.1",
+    "solc": "^0.4.15",
     "truffle": "3.4.3",
     "typescript": "^2.2.2",
-    "web3-typescript-typings": "0.0.3"
+    "web3-typescript-typings": "0.0.3",
+    "yargs": "^8.0.2"
   },
   "dependencies": {
     "bignumber.js": "^4.0.0",
