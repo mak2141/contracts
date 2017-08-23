@@ -15,7 +15,6 @@ const DEFAULT_NETWORK_ID = 50;
 const readdirAsync = promisify(fs.readdir);
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
-const loadRemoteSolidityVersionAsync = promisify(solc.loadRemoteVersion);
 
 interface CompilerOptions {
     contractsDir: string;
