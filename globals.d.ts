@@ -16,6 +16,8 @@ declare namespace Chai {
     }
 }
 /* tslint:enable */
+declare module 'yargs';
+declare module 'solc';
 
 declare module '*.json' {
     const json: any;
