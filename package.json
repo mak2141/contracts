@@ -7,9 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./transpiled; tsc",
+    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled; tsc;",
     "test": "npm run transpile; truffle test",
-    "compile": "rm -rf build/contracts; truffle compile",
+    "compile": "npm run transpile; node transpiled/scripts/compile.js",
     "migrate": "npm run transpile; truffle migrate",
     "deploy": "npm run migrate --network kovan",
     "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts",
@@ -37,12 +37,16 @@
     "copyfiles": "^1.2.0",
     "dirty-chai": "^2.0.1",
     "ethereumjs-testrpc": "4.0.1",
-    "solc": "^0.4.11",
     "truffle": "3.4.3",
     "types-bn": "^0.0.1",
     "types-ethereumjs-util": "machinomy/types-ethereumjs-util",
     "typescript": "^2.5.2",
-    "web3-typescript-typings": "^0.6.0"
+    "web3-typescript-typings": "^0.6.0",
+    "@types/request-promise-native": "^1.0.2",
+    "@types/semver": "^5.4.0",
+    "semver": "^5.4.1",
+    "solc": "^0.4.15",
+    "yargs": "^8.0.2"
   },
   "dependencies": {
     "0x.js": "^0.22.4",
