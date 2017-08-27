@@ -20,6 +20,8 @@ const writeFileAsync = promisify(fs.writeFile);
 const doesPathExist = promisify(fs.access);
 const mkdirAsync = promisify(fs.mkdir);
 
+const log = console.log;
+
 interface CompilerOptions {
     contractsDir: string;
     networkId: number;
@@ -47,11 +49,13 @@ class Compiler {
     public async compileAll(): Promise<void> {
         await this.createArtifactsDirIfDoesNotExist();
         const sources: ContractSources = await this.generateSources(this.contractsDir);
+
         const findImports = (importPath: string): any => {
             const contractBaseName = path.basename(importPath);
             const source = sources[contractBaseName];
             return {contents: source};
-        }
+        };
+
         const contractBaseNames = _.keys(sources);
         _.each(contractBaseNames, async contractBaseName => {
             const source = sources[contractBaseName];
@@ -68,14 +72,15 @@ class Compiler {
                 currentArtifact = JSON.parse(currentArtifactString);
                 oldNetworks = currentArtifact.networks;
                 const oldNetwork: ContractData = oldNetworks[this.networkId];
-                if (!_.isUndefined(oldNetwork) && oldNetwork.keccak256 === sourceHash && oldNetwork.optimizer_runs === this.optimizerRuns) {
+                if (!_.isUndefined(oldNetwork) && oldNetwork.keccak256 === sourceHash &&
+                    oldNetwork.optimizer_runs === this.optimizerRuns) {
                     shouldCompile = false;
                 } else {
                     shouldCompile = true;
                 }
             } catch (err) {
                 shouldCompile = true;
-            } // should always compile if file does not exist
+            }
 
             if (shouldCompile) {
                 const input = {[contractBaseName]: source};
@@ -85,7 +90,7 @@ class Compiler {
                 const solcBin = require(solcBinPath);
                 const solcInstance = solc.setupMethods(solcBin);
 
-                console.log(`Compiling ${contractBaseName}...`);
+                log(`Compiling ${contractBaseName}...`);
                 const compiled = solcInstance.compile({sources: input}, this.optimizerRuns, findImports);
 
                 const contractIdentifier = `${contractBaseName}:${contractName}`;
@@ -112,7 +117,7 @@ class Compiler {
                 const replacer: any = null;
                 const space = 4;
                 await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact, replacer, space));
-                console.log(`${contractBaseName} artifact saved!`)
+                log(`${contractBaseName} artifact saved!`);
             }
         });
     }
@@ -130,9 +135,9 @@ class Compiler {
             if (path.extname(name) === '.sol') {
                 try {
                     sources[name] = await readFileAsync(contentPath, {encoding: 'utf8'});
-                    console.log(`Reading ${name} source...`);
+                    log(`Reading ${name} source...`);
                 } catch (err) {
-                    console.log(`Could not find file at ${contentPath}`);
+                    log(`Could not find file at ${contentPath}`);
                 }
             } else {
                 const nestedSources = await this.generateSources(contentPath);
@@ -148,7 +153,7 @@ class Compiler {
             const solcVersion = versionPragma.replace('^', '').slice(9);
             return solcVersion;
         } catch (err) {
-            throw new Error('Could not find Solidity version');
+            throw new Error('Could not find Solidity version in source');
         }
     }
 
@@ -156,7 +161,7 @@ class Compiler {
         try {
             await doesPathExist(this.artifactsDir);
         } catch (err) {
-            console.log('Creating artifacts directory...');
+            log('Creating artifacts directory...');
             await mkdirAsync(this.artifactsDir);
         }
     }
@@ -172,7 +177,7 @@ class Compiler {
         .option('network-id', {
             type: 'number',
             default: DEFAULT_NETWORK_ID,
-            description: 'mainnet=1, kovan=42, testrpc=50'
+            description: 'mainnet=1, kovan=42, testrpc=50',
         })
         .option('optimizer-runs', {
             type: 'number',
