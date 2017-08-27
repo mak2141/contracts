@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import * as semver from 'semver';
 import ethUtil =  require('ethereumjs-util');
 import {binPaths} from './solc/bin_paths';
-import {ContractArtifact, ContractData} from './artifact_schema';
+import {ContractArtifact, ContractNetworks, ContractData} from './artifact_schema';
 
 const DEFAULT_OPTIMIZER_RUNS = 0;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
@@ -39,7 +39,7 @@ class Compiler {
     }
 
     public async compileAll(): Promise<void> {
-        const sources = await this.generateSources(this.contractsDir);
+        const sources: ContractSources = await this.generateSources(this.contractsDir);
         const findImports = (importPath: string): any => {
             const contractBaseName = path.basename(importPath);
             const source = sources[contractBaseName];
@@ -52,10 +52,10 @@ class Compiler {
             const currentArtifactPath = `${path.resolve('build')}/artifacts/${contractName}.json`;
             const sourceHash = `0x${ethUtil.sha3(source).toString('hex')}`;
 
-            let currentArtifactString;
+            let currentArtifactString: string;
             let currentArtifact: ContractArtifact;
-            let oldNetworks;
-            let shouldCompile = true;
+            let oldNetworks: ContractNetworks;
+            let shouldCompile: boolean = true;
             try {
                 currentArtifactString = await readFileAsync(currentArtifactPath, {encoding: 'utf8'});
                 currentArtifact = JSON.parse(currentArtifactString);
@@ -87,7 +87,7 @@ class Compiler {
 
                 let newArtifact: ContractArtifact;
                 if (!_.isUndefined(currentArtifactString)) {
-                    const newNetworks = _.assign({}, oldNetworks, {[this.networkId]: contractData});
+                    const newNetworks: ContractNetworks = _.assign({}, oldNetworks, {[this.networkId]: contractData});
                     newArtifact = _.assign({}, currentArtifact, {networks: newNetworks});
                 } else {
                     newArtifact = {
@@ -103,13 +103,22 @@ class Compiler {
     }
 
     public async generateSources(dirPath: string): Promise<ContractSources> {
-        let sources: any = {};
-        const dirContents: string[] = await readdirAsync(dirPath);
+        let sources: ContractSources = {};
+        let dirContents: string[];
+        try {
+            dirContents = await readdirAsync(dirPath);
+        } catch (err) {
+            throw new Error(`No directory found at ${dirPath}`);
+        }
         for (const name of dirContents) {
             const contentPath = `${dirPath}/${name}`;
             if (path.extname(name) === '.sol') {
-                sources[name] = await readFileAsync(contentPath, {encoding: 'utf8'});
-                console.log(`Reading ${name} source...`);
+                try {
+                    sources[name] = await readFileAsync(contentPath, {encoding: 'utf8'});
+                    console.log(`Reading ${name} source...`);
+                } catch (err) {
+                    console.log(`Could not find file at ${contentPath}`);
+                }
             } else {
                 const nestedSources = await this.generateSources(contentPath);
                 sources = _.assign({}, sources, nestedSources);
