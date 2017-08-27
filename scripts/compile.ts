@@ -61,7 +61,7 @@ class Compiler {
                 currentArtifact = JSON.parse(currentArtifactString);
                 oldNetworks = currentArtifact.networks;
                 const oldNetwork: ContractData = oldNetworks[this.networkId];
-                if (oldNetwork && oldNetwork.keccak256 === sourceHash) {
+                if (!_.isUndefined(oldNetwork) && oldNetwork.keccak256 === sourceHash && oldNetwork.optimizer_runs === this.optimizerRuns) {
                     shouldCompile = false;
                 }
             } catch (err) {} // should always compile if file does not exist
@@ -81,6 +81,7 @@ class Compiler {
                 const contractData: ContractData = {
                     solc_version: solcVersion,
                     keccak256: sourceHash,
+                    optimizer_runs: this.optimizerRuns,
                     abi: JSON.parse(compiled.contracts[contractIdentifier].interface),
                     unlinked_binary: `0x${compiled.contracts[contractIdentifier].bytecode}`,
                 };
