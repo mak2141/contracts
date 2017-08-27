@@ -17,7 +17,7 @@ const DEFAULT_NETWORK_ID = 50;
 const readdirAsync = promisify(fs.readdir);
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
-const doesPathExist = promisify(fs.exists);
+const doesPathExist = promisify(fs.access);
 const mkdirAsync = promisify(fs.mkdir);
 
 interface CompilerOptions {
@@ -62,7 +62,7 @@ class Compiler {
             let currentArtifactString: string;
             let currentArtifact: ContractArtifact;
             let oldNetworks: ContractNetworks;
-            let shouldCompile: boolean = true;
+            let shouldCompile: boolean;
             try {
                 currentArtifactString = await readFileAsync(currentArtifactPath, {encoding: 'utf8'});
                 currentArtifact = JSON.parse(currentArtifactString);
@@ -70,8 +70,12 @@ class Compiler {
                 const oldNetwork: ContractData = oldNetworks[this.networkId];
                 if (!_.isUndefined(oldNetwork) && oldNetwork.keccak256 === sourceHash && oldNetwork.optimizer_runs === this.optimizerRuns) {
                     shouldCompile = false;
+                } else {
+                    shouldCompile = true;
                 }
-            } catch (err) {} // should always compile if file does not exist
+            } catch (err) {
+                shouldCompile = true;
+            } // should always compile if file does not exist
 
             if (shouldCompile) {
                 const input = {[contractBaseName]: source};
@@ -137,7 +141,7 @@ class Compiler {
 
     public parseSolidityVersion(source: string): string {
         try {
-            const versionPragma = source.match(/(?:solidity\s)([^?][0-9][.][0-9][.][0-9]+)/)[0];
+            const versionPragma = source.match(/(?:solidity\s)([^]?[0-9]{1,2}[.][0-9]{1,2}[.][0-9]{1,2})/)[0];
             const solcVersion = versionPragma.replace('^', '').slice(9);
             return solcVersion;
         } catch (err) {
@@ -146,8 +150,10 @@ class Compiler {
     }
 
     public async createArtifactsDirIfDoesNotExist(): Promise<void> {
-        const doesArtifactsDirExist = await doesPathExist(this.artifactsDir);
-        if (!doesArtifactsDirExist) {
+        try {
+            await doesPathExist(this.artifactsDir);
+        } catch (err) {
+            console.log('Creating artifacts directory...');
             await mkdirAsync(this.artifactsDir);
         }
     }
