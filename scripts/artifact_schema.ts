@@ -14,4 +14,5 @@ export interface ContractData {
     abi: any[];
     unlinked_binary: string;
     address?: string;
+    updated_at: number;
 };
