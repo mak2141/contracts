@@ -11,16 +11,20 @@ import {ContractArtifact, ContractNetworks, ContractData} from './artifact_schem
 
 const DEFAULT_OPTIMIZER_RUNS = 0;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
+const DEFAULT_ARTIFACTS_DIR = `${path.resolve('build')}/artifacts/`;
 const DEFAULT_NETWORK_ID = 50;
 
 const readdirAsync = promisify(fs.readdir);
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
+const doesPathExist = promisify(fs.exists);
+const mkdirAsync = promisify(fs.mkdir);
 
 interface CompilerOptions {
     contractsDir: string;
     networkId: number;
     optimizerRuns: number;
+    artifactsDir: string;
 }
 
 interface ContractSources {
@@ -31,14 +35,17 @@ class Compiler {
     private contractsDir: string;
     private networkId: number;
     private optimizerRuns: number;
+    private artifactsDir: string;
 
     constructor(options: CompilerOptions) {
         this.contractsDir = options.contractsDir;
         this.networkId = options.networkId;
         this.optimizerRuns = options.optimizerRuns;
+        this.artifactsDir = options.artifactsDir;
     }
 
     public async compileAll(): Promise<void> {
+        await this.createArtifactsDirIfDoesNotExist();
         const sources: ContractSources = await this.generateSources(this.contractsDir);
         const findImports = (importPath: string): any => {
             const contractBaseName = path.basename(importPath);
@@ -49,7 +56,7 @@ class Compiler {
         _.each(contractBaseNames, async contractBaseName => {
             const source = sources[contractBaseName];
             const contractName = path.basename(contractBaseName, '.sol');
-            const currentArtifactPath = `${path.resolve('build')}/artifacts/${contractName}.json`;
+            const currentArtifactPath = `${this.artifactsDir}/${contractName}.json`;
             const sourceHash = `0x${ethUtil.sha3(source).toString('hex')}`;
 
             let currentArtifactString: string;
@@ -137,6 +144,13 @@ class Compiler {
             throw new Error('Could not find Solidity version');
         }
     }
+
+    public async createArtifactsDirIfDoesNotExist(): Promise<void> {
+        const doesArtifactsDirExist = await doesPathExist(this.artifactsDir);
+        if (!doesArtifactsDirExist) {
+            await mkdirAsync(this.artifactsDir);
+        }
+    }
 }
 
 (async () => {
@@ -156,6 +170,11 @@ class Compiler {
             default: DEFAULT_OPTIMIZER_RUNS,
             description: 'number of times to run optimizer',
         })
+        .option('artifacts-dir', {
+            type: 'string',
+            default: DEFAULT_ARTIFACTS_DIR,
+            description: 'path to write contracts artifacts to',
+        })
         .help()
         .argv;
 
@@ -163,6 +182,7 @@ class Compiler {
         contractsDir: args.contractsDir,
         networkId: args.networkId,
         optimizerRuns: args.optimizerRuns,
+        artifactsDir: args.artifactsDir,
     };
 
     const compiler = new Compiler(options);
