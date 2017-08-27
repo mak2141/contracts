@@ -1,8 +1,10 @@
 export interface ContractArtifact {
     contract_name: string;
-    networks: {
-        [key: number]: ContractData;
-    }
+    networks: ContractNetworks;
+};
+
+export interface ContractNetworks {
+    [key: number]: ContractData;
 };
 
 export interface ContractData {
@@ -11,4 +13,4 @@ export interface ContractData {
     abi: any[];
     unlinked_binary: string;
     address?: string;
-}
+};
