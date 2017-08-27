@@ -95,6 +95,7 @@ class Compiler {
                     optimizer_runs: this.optimizerRuns,
                     abi: JSON.parse(compiled.contracts[contractIdentifier].interface),
                     unlinked_binary: `0x${compiled.contracts[contractIdentifier].bytecode}`,
+                    updated_at: Date.now(),
                 };
 
                 let newArtifact: ContractArtifact;
@@ -108,7 +109,9 @@ class Compiler {
                     };
                 }
 
-                await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact));
+                const replacer: any = null;
+                const space = 4;
+                await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact, replacer, space));
                 console.log(`${contractBaseName} artifact saved!`)
             }
         });
