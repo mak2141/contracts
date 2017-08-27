@@ -57,30 +57,34 @@ class Compiler {
             const compiled = solcInstance.compile({sources: input}, this.optimizerRuns, findImports);
 
             const contractName = path.basename(contractBaseName, '.sol');
-            const contractIdentifier = semver.lt(solcVersion, '0.4.11') ? solcVersion : `${contractBaseName}:${contractName}`;
+            const contractIdentifier = `${contractBaseName}:${contractName}`;
             const contractData: ContractData = {
                 solc_version: solcVersion,
                 abi: JSON.parse(compiled.contracts[contractIdentifier].interface),
                 unlinked_binary: `0x${compiled.contracts[contractIdentifier].bytecode}`,
             };
-            const output: SolcOutput = {
-                contract_name: contractName,
-                networks: {
-                    [this.networkId]: contractData,
-                }
-            };
+
             const currentArtifactPath = `${path.resolve('build')}/artifacts/${contractName}.json`;
             let newArtifact: SolcOutput;
             try {
                 const currentArtifactString = await readFileAsync(currentArtifactPath, {encoding: 'utf8'});
                 const currentArtifact = JSON.parse(currentArtifactString);
-                newArtifact = _.assign({}, currentArtifact, output);
+                const oldNetworks = currentArtifact.networks;
+                if (!_.isEqual(oldNetworks[this.networkId], contractData)) {
+                    const newNetworks = _.assign({}, oldNetworks, {[this.networkId]: contractData});
+                    newArtifact = _.assign({}, currentArtifact, {networks: newNetworks});
+                }
             } catch (err) {
-                newArtifact = output;
+                newArtifact = {
+                    contract_name: contractName,
+                    networks: {[this.networkId]: contractData},
+                };
             }
 
-            await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact));
-            console.log(`${contractBaseName} artifact saved!`)
+            if (!_.isUndefined(newArtifact)) {
+                await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact));
+                console.log(`${contractBaseName} artifact saved!`)
+            }
         });
     }
 
@@ -102,8 +106,8 @@ class Compiler {
 
     public parseSolidityVersion(source: string): string {
         try {
-            const versionPragma = source.match(/(?:solidity\s)([0-9][.][0-9][.][0-9]+)/g)[0];
-            const solcVersion = versionPragma.slice(9);
+            const versionPragma = source.match(/(?:solidity\s)([^?][0-9][.][0-9][.][0-9]+)/)[0];
+            const solcVersion = versionPragma.replace('^', '').slice(9);
             return solcVersion;
         } catch (err) {
             throw new Error('Could not find Solidity version');
