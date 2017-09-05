@@ -9,7 +9,7 @@
   "scripts": {
     "transpile": "rm -rf ./transpiled; tsc; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled;",
     "test": "npm run transpile; truffle test",
-    "compile": "npm run transpile; node transpiled/scripts/compile.js",
+    "compile": "npm run transpile; node transpiled/scripts/cli.js",
     "migrate": "npm run transpile; truffle migrate",
     "deploy": "npm run migrate --network kovan",
     "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts",

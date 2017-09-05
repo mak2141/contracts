@@ -1,18 +1,13 @@
 import * as fs from 'fs';
 import * as solc from 'solc';
-import * as yargs from 'yargs';
 import * as promisify from 'es6-promisify';
 import * as path from 'path';
 import * as _ from 'lodash';
 import * as semver from 'semver';
 import ethUtil =  require('ethereumjs-util');
 import {binPaths} from './solc/bin_paths';
-import {ContractArtifact, ContractNetworks, ContractData} from './artifact_schema';
-
-const DEFAULT_OPTIMIZER_RUNS = 0;
-const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
-const DEFAULT_ARTIFACTS_DIR = `${path.resolve('build')}/artifacts/`;
-const DEFAULT_NETWORK_ID = 50;
+import {ContractArtifact, ContractNetworks, ContractData} from './schemas/artifact_schema';
+import {CompilerOptions, ContractSources} from './schemas/compiler_schema';
 
 const readdirAsync = promisify(fs.readdir);
 const readFileAsync = promisify(fs.readFile);
@@ -22,18 +17,7 @@ const mkdirAsync = promisify(fs.mkdir);
 
 const log = console.log;
 
-interface CompilerOptions {
-    contractsDir: string;
-    networkId: number;
-    optimizerRuns: number;
-    artifactsDir: string;
-}
-
-interface ContractSources {
-    [key: string]: string;
-}
-
-class Compiler {
+export class Compiler {
     private contractsDir: string;
     private networkId: number;
     private optimizerRuns: number;
@@ -166,39 +150,3 @@ class Compiler {
         }
     }
 }
-
-(async () => {
-    const args = yargs
-        .option('contracts-dir', {
-            type: 'string',
-            default: DEFAULT_CONTRACTS_DIR,
-            description: 'path of contracts directory to compile',
-        })
-        .option('network-id', {
-            type: 'number',
-            default: DEFAULT_NETWORK_ID,
-            description: 'mainnet=1, kovan=42, testrpc=50',
-        })
-        .option('optimizer-runs', {
-            type: 'number',
-            default: DEFAULT_OPTIMIZER_RUNS,
-            description: 'number of times to run optimizer',
-        })
-        .option('artifacts-dir', {
-            type: 'string',
-            default: DEFAULT_ARTIFACTS_DIR,
-            description: 'path to write contracts artifacts to',
-        })
-        .help()
-        .argv;
-
-    const options: CompilerOptions = {
-        contractsDir: args.contractsDir,
-        networkId: args.networkId,
-        optimizerRuns: args.optimizerRuns,
-        artifactsDir: args.artifactsDir,
-    };
-
-    const compiler = new Compiler(options);
-    await compiler.compileAll();
-})();
