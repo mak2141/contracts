@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity 0.4.11;
+pragma solidity ^0.4.11;
 
 import "./TokenTransferProxy.sol";
 import "./base/Token.sol";
