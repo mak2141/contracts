@@ -16,6 +16,9 @@ const mkdirAsync = promisify(fs.mkdir);
 
 const log = console.log;
 
+const JSON_REPLACER: any = null;
+const JSON_SPACES = 4;
+
 export class Compiler {
     private contractsDir: string;
     private networkId: number;
@@ -40,6 +43,8 @@ export class Compiler {
         };
 
         const contractBaseNames = _.keys(sources);
+        const warnings: any = {};
+
         _.each(contractBaseNames, async contractBaseName => {
             const source = sources[contractBaseName];
             const contractName = path.basename(contractBaseName, '.sol');
@@ -76,6 +81,16 @@ export class Compiler {
                 log(`Compiling ${contractBaseName}...`);
                 const compiled = solcInstance.compile({sources: input}, this.optimizerRuns, findImports);
 
+                if (!_.isUndefined(compiled.errors)) {
+                    _.each(compiled.errors, errMsg => {
+                        const normalizedErrMsg = this.getNormalizedErrMsg(errMsg);
+                        if (_.isUndefined(warnings[normalizedErrMsg])) {
+                            warnings[normalizedErrMsg] = true;
+                            log(normalizedErrMsg);
+                        }
+                    });
+                }
+
                 const contractIdentifier = `${contractBaseName}:${contractName}`;
                 const contractData: ContractData = {
                     solc_version: solcVersion,
@@ -97,9 +112,7 @@ export class Compiler {
                     };
                 }
 
-                const replacer: any = null;
-                const space = 4;
-                await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact, replacer, space));
+                await writeFileAsync(currentArtifactPath, JSON.stringify(newArtifact, JSON_REPLACER, JSON_SPACES));
                 log(`${contractBaseName} artifact saved!`);
             }
         });
@@ -138,6 +151,18 @@ export class Compiler {
         } catch (err) {
             throw new Error('Could not find Solidity version in source');
         }
+    }
+
+    public getNormalizedErrMsg(errMsg: string): string {
+        try {
+            const errPath = errMsg.match(/(.*\.sol)/)[0];
+            const baseContract = path.basename(errPath);
+            const normalizedErrMsg = errMsg.replace(errPath, baseContract);
+            return normalizedErrMsg;
+        } catch (err) {
+            throw new Error('Could not find a path in error message');
+        }
+
     }
 
     public async createArtifactsDirIfDoesNotExist(): Promise<void> {
