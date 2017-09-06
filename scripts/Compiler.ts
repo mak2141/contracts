@@ -3,7 +3,6 @@ import * as solc from 'solc';
 import * as promisify from 'es6-promisify';
 import * as path from 'path';
 import * as _ from 'lodash';
-import * as semver from 'semver';
 import ethUtil =  require('ethereumjs-util');
 import {binPaths} from './solc/bin_paths';
 import {ContractArtifact, ContractNetworks, ContractData} from './schemas/artifact_schema';
