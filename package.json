@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "transpile": "rm -rf ./transpiled; tsc; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled;",
+    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled; tsc;",
     "test": "npm run transpile; truffle test",
     "compile": "npm run transpile; node transpiled/scripts/index.js",
     "migrate": "npm run transpile; truffle migrate",
@@ -34,6 +34,8 @@
     "chai-as-promised-typescript-typings": "^0.0.3",
     "chai-bignumber": "^2.0.1",
     "chai-typescript-typings": "^0.0.0",
+    "@types/request-promise-native": "^1.0.2",
+    "@types/yargs": "^8.0.2",
     "copyfiles": "^1.2.0",
     "dirty-chai": "^2.0.1",
     "ethereumjs-testrpc": "4.0.1",
@@ -42,7 +44,6 @@
     "types-ethereumjs-util": "machinomy/types-ethereumjs-util",
     "typescript": "^2.5.2",
     "web3-typescript-typings": "^0.6.0",
-    "@types/request-promise-native": "^1.0.2",
     "@types/semver": "^5.4.0",
     "semver": "^5.4.1",
     "solc": "^0.4.15",
