@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "transpile": "rm -rf ./transpiled; tsc; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled;",
+    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled; tsc;",
     "test": "npm run transpile; truffle test",
     "compile": "npm run transpile; node transpiled/scripts/index.js",
     "migrate": "npm run transpile; truffle migrate",
@@ -30,14 +30,15 @@
     "@types/lodash": "^4.14.63",
     "@types/node": "^7.0.13",
     "@types/request-promise-native": "^1.0.2",
-    "@types/semver": "^5.4.0",
+    "@types/yargs": "^8.0.2",
     "copyfiles": "^1.2.0",
     "dirty-chai": "^2.0.0",
     "ethereumjs-testrpc": "4.0.1",
     "solc": "^0.4.15",
     "truffle": "3.4.3",
+    "types-ethereumjs-util": "0.0.5",
     "typescript": "^2.2.2",
-    "web3-typescript-typings": "0.0.3",
+    "web3-typescript-typings": "^0.6.0",
     "yargs": "^8.0.2"
   },
   "dependencies": {
