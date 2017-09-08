@@ -25,8 +25,8 @@
   },
   "homepage": "https://github.com/0xProject/0x-Smart-Contracts#readme",
   "devDependencies": {
-    "@types/bignumber.js": "^4.0.2",
     "@types/bluebird": "^3.5.3",
+    "@types/bignumber.js": "^4.0.2",
     "@types/lodash": "^4.14.63",
     "@types/node": "^7.0.13",
     "@types/request-promise-native": "^1.0.2",
@@ -37,7 +37,7 @@
     "solc": "^0.4.15",
     "truffle": "3.4.3",
     "types-ethereumjs-util": "0.0.5",
-    "typescript": "^2.2.2",
+    "typescript": "^2.5.2",
     "web3-typescript-typings": "^0.6.0",
     "yargs": "^8.0.2"
   },
