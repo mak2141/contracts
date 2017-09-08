@@ -1,9 +1,9 @@
 import * as yargs from 'yargs';
 import * as path from 'path';
-import {CompilerOptions, ContractSources} from './schemas/compiler_schema';
+import {CompilerOptions, ContractSources} from './../util/types';
 import {Compiler} from './Compiler';
 
-const DEFAULT_OPTIMIZER_RUNS = 0;
+const DEFAULT_OPTIMIZER_ENABLED = false;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
 const DEFAULT_ARTIFACTS_DIR = `${path.resolve('build')}/artifacts/`;
 const DEFAULT_NETWORK_ID = 50;
@@ -20,10 +20,10 @@ const DEFAULT_NETWORK_ID = 50;
             default: DEFAULT_NETWORK_ID,
             description: 'mainnet=1, kovan=42, testrpc=50',
         })
-        .option('optimizer-runs', {
-            type: 'number',
-            default: DEFAULT_OPTIMIZER_RUNS,
-            description: 'number of times to run optimizer',
+        .option('optimize', {
+            type: 'boolean',
+            default: DEFAULT_OPTIMIZER_ENABLED,
+            description: 'enable optimizer',
         })
         .option('artifacts-dir', {
             type: 'string',
@@ -36,7 +36,7 @@ const DEFAULT_NETWORK_ID = 50;
     const options: CompilerOptions = {
         contractsDir: args.contractsDir,
         networkId: args.networkId,
-        optimizerRuns: args.optimizerRuns,
+        optimizerEnabled: args.optimize ? 1: 0,
         artifactsDir: args.artifactsDir,
     };
 

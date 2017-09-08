@@ -121,37 +121,37 @@ export enum ExchangeContractErrs {
 export interface ContractArtifact {
     contract_name: string;
     networks: ContractNetworks;
-};
+}
 
 export interface ContractNetworks {
     [key: number]: ContractData;
-};
+}
 
 export interface ContractData {
     solc_version: string;
-    optimizer_runs: number;
+    optimizer_enabled: number;
     keccak256: string;
     abi: Web3.ContractAbi;
     unlinked_binary: string;
     address?: string;
     updated_at: number;
-};
+}
 
 export interface SolcErrors {
     [key: string]: boolean;
-};
+}
 
 export interface CompilerOptions {
     contractsDir: string;
     networkId: number;
-    optimizerRuns: number;
+    optimizerEnabled: number;
     artifactsDir: string;
-};
+}
 
 export interface ContractSources {
     [key: string]: string;
-};
+}
 
 export interface ImportContents {
     contents: string;
-};
+}
