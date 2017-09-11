@@ -1,7 +1,7 @@
 import * as yargs from 'yargs';
 import * as path from 'path';
 import {CompilerOptions, ContractSources} from './../util/types';
-import {Compiler} from './Compiler';
+import {Compiler} from './compiler';
 
 const DEFAULT_OPTIMIZER_ENABLED = false;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
@@ -41,5 +41,5 @@ const DEFAULT_NETWORK_ID = 50;
     };
 
     const compiler = new Compiler(options);
-    await compiler.compileAll();
+    await compiler.compileAllAsync();
 })();

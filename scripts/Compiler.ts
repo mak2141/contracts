@@ -33,110 +33,31 @@ export class Compiler {
     private networkId: number;
     private optimizerEnabled: number;
     private artifactsDir: string;
+    private contractSources: ContractSources;
+    private solcErrors: Set<string>;
 
     constructor(options: CompilerOptions) {
         this.contractsDir = options.contractsDir;
         this.networkId = options.networkId;
         this.optimizerEnabled = options.optimizerEnabled;
         this.artifactsDir = options.artifactsDir;
+        this.solcErrors = new Set();
     }
     /**
-     * Compiles all Solidity files found it contractsDir and writes JSON artifacts to artifactsDir.
+     * Compiles all Solidity files found in contractsDir and writes JSON artifacts to artifactsDir.
      */
-    public async compileAll(): Promise<void> {
-        await this.createArtifactsDirIfDoesNotExist();
-        const sources: ContractSources = await this.getContractSources(this.contractsDir);
-        const findImports: (importPath: string) => ImportContents = this.createFindImports(sources);
+    public async compileAllAsync(): Promise<void> {
+        await this.createArtifactsDirIfDoesNotExistAsync();
+        this.contractSources = await this.getContractSourcesAsync(this.contractsDir);
 
-        const contractBaseNames = _.keys(sources);
-        const errors: SolcErrors = {};
+        const contractBaseNames = _.keys(this.contractSources);
+        const compiledContractPromises = _.map(contractBaseNames, (contractBaseName: string): Promise<void> => {
+            return this.compileContractAsync(contractBaseName);
+        });
+        await Promise.all(compiledContractPromises);
 
-        _.each(contractBaseNames, async (contractBaseName: string): Promise<void> => {
-            const source = sources[contractBaseName];
-            const contractName = path.basename(contractBaseName, SOLIDITY_FILE_EXTENSION);
-            const currentArtifactPath = `${this.artifactsDir}/${contractName}.json`;
-            const sourceHash = `0x${ethUtil.sha3(source).toString('hex')}`;
-
-            let currentArtifactString: string;
-            let currentArtifact: ContractArtifact;
-            let oldNetworks: ContractNetworks;
-            let shouldCompile: boolean;
-            try {
-                const opts = {
-                    encoding: 'utf8',
-                };
-                currentArtifactString = await readFileAsync(currentArtifactPath, opts);
-                currentArtifact = JSON.parse(currentArtifactString);
-                oldNetworks = currentArtifact.networks;
-                const oldNetwork: ContractData = oldNetworks[this.networkId];
-                shouldCompile = _.isUndefined(oldNetwork) ||
-                                oldNetwork.keccak256 !== sourceHash ||
-                                oldNetwork.optimizer_enabled !== this.optimizerEnabled;
-            } catch (err) {
-                shouldCompile = true;
-            }
-
-            if (shouldCompile) {
-                const input = {
-                    [contractBaseName]: source,
-                };
-                const solcVersion = this.parseSolidityVersion(source);
-                const fullSolcVersion = binPaths[solcVersion];
-                const solcBinPath = `./solc/solc_bin/${fullSolcVersion}`;
-                const solcBin = require(solcBinPath);
-                const solcInstance = solc.setupMethods(solcBin);
-
-                consoleLog(`Compiling ${contractBaseName}...`);
-                const sourcesToCompile = {
-                    sources: input,
-                };
-                const compiled = solcInstance.compile(sourcesToCompile, this.optimizerEnabled, findImports);
-
-                if (!_.isUndefined(compiled.errors)) {
-                    _.each(compiled.errors, errMsg => {
-                        const normalizedErrMsg = this.getNormalizedErrMsg(errMsg);
-                        if (_.isUndefined(errors[normalizedErrMsg])) {
-                            errors[normalizedErrMsg] = true;
-                            consoleLog(normalizedErrMsg);
-                        }
-                    });
-                }
-
-                const contractIdentifier = `${contractBaseName}:${contractName}`;
-                const abi: Web3.ContractAbi = JSON.parse(compiled.contracts[contractIdentifier].interface);
-                const unlinked_binary = `0x${compiled.contracts[contractIdentifier].bytecode}`;
-                const updated_at = Date.now();
-                const contractData: ContractData = {
-                    solc_version: solcVersion,
-                    keccak256: sourceHash,
-                    optimizer_enabled: this.optimizerEnabled,
-                    abi,
-                    unlinked_binary,
-                    updated_at,
-                };
-
-                let newArtifact: ContractArtifact;
-                if (!_.isUndefined(currentArtifactString)) {
-                    newArtifact = {
-                        ...currentArtifact,
-                        networks: {
-                            ...oldNetworks,
-                            [this.networkId]: contractData,
-                        }
-                    };
-                } else {
-                    newArtifact = {
-                        contract_name: contractName,
-                        networks: {
-                            [this.networkId]: contractData,
-                        },
-                    };
-                }
-
-                const artifactString = JSON.stringify(newArtifact, JSON_REPLACER, NUMBER_OF_JSON_SPACES);
-                await writeFileAsync(currentArtifactPath, artifactString);
-                consoleLog(`${contractBaseName} artifact saved!`);
-            }
+        this.solcErrors.forEach(errMsg => {
+            consoleLog(errMsg);
         });
     }
     /**
@@ -144,14 +65,14 @@ export class Compiler {
      * @param  dirPath Directory to search.
      * @return Mapping of contract name to contract source.
      */
-    private async getContractSources(dirPath: string): Promise<ContractSources> {
-        let sources: ContractSources = {};
-        let dirContents: string[];
+    private async getContractSourcesAsync(dirPath: string): Promise<ContractSources> {
+        let dirContents: string[] = [];
         try {
             dirContents = await readdirAsync(dirPath);
         } catch (err) {
             throw new Error(`No directory found at ${dirPath}`);
         }
+        let sources: ContractSources = {};
         for (const name of dirContents) {
             const contentPath = `${dirPath}/${name}`;
             if (path.extname(name) === SOLIDITY_FILE_EXTENSION) {
@@ -166,7 +87,7 @@ export class Compiler {
                 }
             } else {
                 try {
-                    const nestedSources = await this.getContractSources(contentPath);
+                    const nestedSources = await this.getContractSourcesAsync(contentPath);
                     sources = {
                       ...sources,
                       ...nestedSources,
@@ -179,17 +100,113 @@ export class Compiler {
         return sources;
     }
     /**
+     * Compiles contract and saves artifact to artifactsDir.
+     * @param contractBaseName Name of contract with '.sol' extension.
+     */
+    private async compileContractAsync(contractBaseName: string): Promise<void> {
+        if (_.isUndefined(this.contractSources)) {
+            throw new Error('Contract sources not yet initialized');
+        }
+        
+        const source = this.contractSources[contractBaseName];
+        const contractName = path.basename(contractBaseName, SOLIDITY_FILE_EXTENSION);
+        const currentArtifactPath = `${this.artifactsDir}/${contractName}.json`;
+        const sourceHash = `0x${ethUtil.sha3(source).toString('hex')}`;
+
+        let currentArtifactString: string;
+        let currentArtifact: ContractArtifact;
+        let oldNetworks: ContractNetworks;
+        let shouldCompile: boolean;
+        try {
+            const opts = {
+                encoding: 'utf8',
+            };
+            currentArtifactString = await readFileAsync(currentArtifactPath, opts);
+            currentArtifact = JSON.parse(currentArtifactString);
+            oldNetworks = currentArtifact.networks;
+            const oldNetwork: ContractData = oldNetworks[this.networkId];
+            shouldCompile = _.isUndefined(oldNetwork) ||
+                            oldNetwork.keccak256 !== sourceHash ||
+                            oldNetwork.optimizer_enabled !== this.optimizerEnabled;
+        } catch (err) {
+            shouldCompile = true;
+        }
+
+        if (!shouldCompile) {
+            return;
+        }
+
+        const input = {
+            [contractBaseName]: source,
+        };
+        const solcVersion = this.parseSolidityVersion(source);
+        const fullSolcVersion = binPaths[solcVersion];
+        const solcBinPath = `./solc/solc_bin/${fullSolcVersion}`;
+        const solcBin = require(solcBinPath);
+        const solcInstance = solc.setupMethods(solcBin);
+
+        consoleLog(`Compiling ${contractBaseName}...`);
+        const sourcesToCompile = {
+            sources: input,
+        };
+        const compiled = solcInstance.compile(sourcesToCompile,
+                                              this.optimizerEnabled,
+                                              this.findImportsIfSourcesExist.bind(this));
+
+        if (!_.isUndefined(compiled.errors)) {
+            _.each(compiled.errors, errMsg => {
+                const normalizedErrMsg = this.getNormalizedErrMsg(errMsg);
+                this.solcErrors.add(normalizedErrMsg);
+            });
+        }
+
+        const contractIdentifier = `${contractBaseName}:${contractName}`;
+        const abi: Web3.ContractAbi = JSON.parse(compiled.contracts[contractIdentifier].interface);
+        const unlinked_binary = `0x${compiled.contracts[contractIdentifier].bytecode}`;
+        const updated_at = Date.now();
+        const contractData: ContractData = {
+            solc_version: solcVersion,
+            keccak256: sourceHash,
+            optimizer_enabled: this.optimizerEnabled,
+            abi,
+            unlinked_binary,
+            updated_at,
+        };
+
+        let newArtifact: ContractArtifact;
+        if (!_.isUndefined(currentArtifactString)) {
+            newArtifact = {
+                ...currentArtifact,
+                networks: {
+                    ...oldNetworks,
+                    [this.networkId]: contractData,
+                }
+            };
+        } else {
+            newArtifact = {
+                contract_name: contractName,
+                networks: {
+                    [this.networkId]: contractData,
+                },
+            };
+        }
+
+        const artifactString = JSON.stringify(newArtifact, JSON_REPLACER, NUMBER_OF_JSON_SPACES);
+        await writeFileAsync(currentArtifactPath, artifactString);
+        consoleLog(`${contractBaseName} artifact saved!`);
+    }
+    /**
      * Searches Solidity source code for compiler version.
      * @param  source Source code of contract.
      * @return Solc compiler version.
      */
     private parseSolidityVersion(source: string): string {
-        try {
-            const solcVersion = source.match(/(?:solidity\s\^?)([0-9]{1,2}[.][0-9]{1,2}[.][0-9]{1,2})/)[1];
-            return solcVersion;
-        } catch (err) {
+        const solcVersionMatch = source.match(/(?:solidity\s\^?)([0-9]{1,2}[.][0-9]{1,2}[.][0-9]{1,2})/);
+        if (_.isNull(solcVersionMatch)) {
             throw new Error('Could not find Solidity version in source');
         }
+        const solcVersion = solcVersionMatch[1];
+        return solcVersion;
     }
     /**
      * Normalizes the path found in the error message.
@@ -199,36 +216,36 @@ export class Compiler {
      * @return The error message with directories truncated from the contract path.
      */
     private getNormalizedErrMsg(errMsg: string): string {
-        try {
-            const errPath = errMsg.match(/(.*\.sol)/)[0];
-            const baseContract = path.basename(errPath);
-            const normalizedErrMsg = errMsg.replace(errPath, baseContract);
-            return normalizedErrMsg;
-        } catch (err) {
+        const errPathMatch = errMsg.match(/(.*\.sol)/);
+        if (_.isNull(errPathMatch)) {
             throw new Error('Could not find a path in error message');
         }
-
+        const errPath = errPathMatch[0];
+        const baseContract = path.basename(errPath);
+        const normalizedErrMsg = errMsg.replace(errPath, baseContract);
+        return normalizedErrMsg;
     }
     /**
-     * Creates a callback to resolve dependencies with `solc.compile`.
-     * @param  sources Mapping of contract names to contract source code.
-     * @return A function to be used as a callback in `solc.compile`.
+     * Callback to resolve dependencies with `solc.compile`.
+     * Throws error if contractSources not yet initialized.
+     * @param  importPath Path to an imported dependency.
+     * @return Import contents object containing source code of dependency.
      */
-    private createFindImports(sources: ContractSources): (importPath: string) => ImportContents {
-        const findImports = (importPath: string): ImportContents => {
-            const contractBaseName = path.basename(importPath);
-            const source = sources[contractBaseName];
-            const importContents: ImportContents = {
-                contents: source,
-            };
-            return importContents;
+    private findImportsIfSourcesExist(importPath: string): ImportContents {
+        if (_.isUndefined(this.contractSources)) {
+            throw new Error('Contract sources not yet initialized');
+        }
+        const contractBaseName = path.basename(importPath);
+        const source = this.contractSources[contractBaseName];
+        const importContents: ImportContents = {
+            contents: source,
         };
-        return findImports;
+        return importContents;
     }
     /**
      * Creates the artifacts directory if it does not already exist.
      */
-    private async createArtifactsDirIfDoesNotExist(): Promise<void> {
+    private async createArtifactsDirIfDoesNotExistAsync(): Promise<void> {
         if (!fs.existsSync(this.artifactsDir)) {
             consoleLog('Creating artifacts directory...');
             await mkdirAsync(this.artifactsDir);
