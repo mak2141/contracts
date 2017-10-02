@@ -13,7 +13,9 @@
     "migrate": "npm run transpile; truffle migrate",
     "deploy": "npm run migrate --network kovan",
     "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts",
-    "testrpc": "testrpc --networkId 50"
+    "testrpc": "testrpc --networkId 50",
+    "docs:json": "npm run docs:remove; doxity init; doxity build; node ./scripts/generate_doc_json.js;",
+    "docs:remove": "rm -rf ./scripts/doxity;"
   },
   "repository": {
     "type": "git",
