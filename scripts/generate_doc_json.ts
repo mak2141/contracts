@@ -11,6 +11,7 @@ const version = stdout.toString('utf8').slice(0, -1);
 const FINAL_DOC_FILE_PATH = `${DOC_JSONS_DIR}/v${version}.json`;
 
 // Remove finalDoc json if exists
+// This exists for debugging purposes only
 if (fs.existsSync(FINAL_DOC_FILE_PATH)) {
     fs.unlinkSync(FINAL_DOC_FILE_PATH);
 }
