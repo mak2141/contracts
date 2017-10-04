@@ -30,4 +30,5 @@ for (const jsonFile of jsonFiles) {
 
 const finalDocString = JSON.stringify(finalDocJSON);
 fs.writeFileSync(FINAL_DOC_FILE_PATH, finalDocString);
+// tslint:disable-next-line: no-console
 console.log('Successfully generated Doc JSON');
