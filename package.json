@@ -12,11 +12,13 @@
     "compile": "rm -rf build/contracts; truffle compile",
     "migrate": "npm run transpile; truffle migrate",
     "deploy": "npm run migrate --network kovan",
-    "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts",
+    "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts scripts/*.ts",
     "testrpc": "testrpc --networkId 50",
-    "docs": "npm run docs:remove; npm run transpile; doxity init; doxity build; npm run transpile; node transpiled/scripts/generate_doc_json.js; npm run docs:upload; npm run docs:remove;",
+    "docs": "run-s docs:remove docs:build docs:generate docs:upload docs:remove",
     "docs:remove": "rm -rf temporary;",
-    "docs:upload": "aws s3 cp temporary/doxity/pages/docs/v$(git tag).json s3://smart-contracts-docs-json/v$(git tag).json --profile 0xproject --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --content-type aplication/json"
+    "docs:build": "doxity init; doxity build",
+    "docs:generate": "npm run transpile; node transpiled/scripts/generate_doc_json.js;",
+    "docs:upload": "aws s3 cp ./temporary/doxity/pages/docs/v$(git tag).json s3://smart-contracts-docs-json/v$(git tag).json --profile 0xproject --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --content-type aplication/json"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,7 @@
     "copyfiles": "^1.2.0",
     "dirty-chai": "^2.0.1",
     "ethereumjs-testrpc": "4.0.1",
+    "npm-run-all": "^4.1.1",
     "solc": "^0.4.11",
     "truffle": "3.4.3",
     "types-bn": "^0.0.1",
