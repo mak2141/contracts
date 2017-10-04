@@ -2,17 +2,15 @@ import * as _ from 'lodash';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as child from 'child_process';
-import promisify = require('es6-promisify');
 
 const tempDir = path.resolve('temporary');
 const DOC_JSONS_DIR = `${tempDir}/doxity/pages/docs`;
 
 (async () => {
 
-    // const { stdout, stderr } = await promisify(child.exec)('git tag');
-    // console.log('stdout', stdout, stderr);
-    const stdout = '1.0.0';
-    const FINAL_DOC_FILE_PATH = `${DOC_JSONS_DIR}/v${stdout}.json`;
+    const stdout = child.execSync('git tag');
+    const version = stdout.toString('utf8');
+    const FINAL_DOC_FILE_PATH = `${DOC_JSONS_DIR}/v${version}.json`;
 
     // Remove finalDoc json if exists
     if (fs.existsSync(FINAL_DOC_FILE_PATH)) {
