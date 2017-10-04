@@ -7,7 +7,7 @@ const tempDir = path.resolve('temporary');
 const DOC_JSONS_DIR = `${tempDir}/doxity/pages/docs`;
 
 const stdout = child.execSync('git tag');
-const version = stdout.toString('utf8');
+const version = stdout.toString('utf8').slice(0, -1);
 const FINAL_DOC_FILE_PATH = `${DOC_JSONS_DIR}/v${version}.json`;
 
 // Remove finalDoc json if exists
