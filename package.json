@@ -14,8 +14,9 @@
     "deploy": "npm run migrate --network kovan",
     "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts",
     "testrpc": "testrpc --networkId 50",
-    "docs:json": "npm run docs:remove; doxity init; doxity build; node ./scripts/generate_doc_json.js;",
-    "docs:remove": "rm -rf ./scripts/doxity;"
+    "docs": "npm run docs:remove; npm run transpile; doxity init; doxity build; npm run transpile; node transpiled/scripts/generate_doc_json.js; npm run docs:upload; npm run docs:remove;",
+    "docs:remove": "rm -rf temporary;",
+    "docs:upload": "aws s3 cp temporary/doxity/pages/docs/v$(git tag).json s3://smart-contracts-docs-json/v$(git tag).json --profile 0xproject --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers --content-type aplication/json"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,7 @@
     "@types/bignumber.js": "^4.0.2",
     "@types/bluebird": "^3.5.3",
     "@types/lodash": "^4.14.63",
-    "@types/node": "^7.0.13",
+    "@types/node": "^8.0.31",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-as-promised-typescript-typings": "^0.0.3",
