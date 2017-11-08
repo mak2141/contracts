@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import {chaiSetup} from '../utils/chai_setup';
 import ethUtil = require('ethereumjs-util');
 import {ZeroEx} from '0x.js';

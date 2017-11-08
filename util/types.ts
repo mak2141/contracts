@@ -1,16 +1,16 @@
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import * as Web3 from 'web3';
 
 export interface BalancesByOwner {
   [ownerAddress: string]: {
-    [tokenAddress: string]: BigNumber.BigNumber;
+    [tokenAddress: string]: BigNumber;
   };
 }
 
 export interface BatchFillOrders {
   orderAddresses: string[][];
-  orderValues: BigNumber.BigNumber[][];
-  fillTakerTokenAmounts: BigNumber.BigNumber[];
+  orderValues: BigNumber[][];
+  fillTakerTokenAmounts: BigNumber[];
   shouldThrowOnInsufficientBalanceOrAllowance: boolean;
   v: number[];
   r: string[];
@@ -19,8 +19,8 @@ export interface BatchFillOrders {
 
 export interface FillOrdersUpTo {
   orderAddresses: string[][];
-  orderValues: BigNumber.BigNumber[][];
-  fillTakerTokenAmount: BigNumber.BigNumber;
+  orderValues: BigNumber[][];
+  fillTakerTokenAmount: BigNumber;
   shouldThrowOnInsufficientBalanceOrAllowance: boolean;
   v: number[];
   r: string[];
@@ -29,8 +29,8 @@ export interface FillOrdersUpTo {
 
 export interface BatchCancelOrders {
   orderAddresses: string[][];
-  orderValues: BigNumber.BigNumber[][];
-  cancelTakerTokenAmounts: BigNumber.BigNumber[];
+  orderValues: BigNumber[][];
+  cancelTakerTokenAmounts: BigNumber[];
 }
 
 export interface DefaultOrderParams {
@@ -39,10 +39,10 @@ export interface DefaultOrderParams {
   feeRecipient: string;
   makerToken: string;
   takerToken: string;
-  makerTokenAmount: BigNumber.BigNumber;
-  takerTokenAmount: BigNumber.BigNumber;
-  makerFee: BigNumber.BigNumber;
-  takerFee: BigNumber.BigNumber;
+  makerTokenAmount: BigNumber;
+  takerTokenAmount: BigNumber;
+  makerFee: BigNumber;
+  takerFee: BigNumber;
 }
 
 export interface OptionalOrderParams {
@@ -52,11 +52,11 @@ export interface OptionalOrderParams {
   feeRecipient?: string;
   makerToken?: string;
   takerToken?: string;
-  makerTokenAmount?: BigNumber.BigNumber;
-  takerTokenAmount?: BigNumber.BigNumber;
-  makerFee?: BigNumber.BigNumber;
-  takerFee?: BigNumber.BigNumber;
-  expirationTimestampInSec?: BigNumber.BigNumber;
+  makerTokenAmount?: BigNumber;
+  takerTokenAmount?: BigNumber;
+  makerFee?: BigNumber;
+  takerFee?: BigNumber;
+  expirationTimestampInSec?: BigNumber;
 }
 
 export interface OrderParams {
@@ -66,12 +66,12 @@ export interface OrderParams {
   feeRecipient: string;
   makerToken: string;
   takerToken: string;
-  makerTokenAmount: BigNumber.BigNumber;
-  takerTokenAmount: BigNumber.BigNumber;
-  makerFee: BigNumber.BigNumber;
-  takerFee: BigNumber.BigNumber;
-  expirationTimestampInSec: BigNumber.BigNumber;
-  salt: BigNumber.BigNumber;
+  makerTokenAmount: BigNumber;
+  takerTokenAmount: BigNumber;
+  makerFee: BigNumber;
+  takerFee: BigNumber;
+  expirationTimestampInSec: BigNumber;
+  salt: BigNumber;
   orderHashHex?: string;
   v?: number;
   r?: string;

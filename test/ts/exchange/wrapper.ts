@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as chai from 'chai';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import {ZeroEx} from '0x.js';
 import {chaiSetup} from '../utils/chai_setup';
 import {Balances} from '../../../util/balances';
@@ -159,7 +159,7 @@ contract('Exchange', (accounts: string[]) => {
 
     describe('batchFillOrders', () => {
       it('should transfer the correct amounts', async () => {
-        const fillTakerTokenAmounts: BigNumber.BigNumber[] = [];
+        const fillTakerTokenAmounts: BigNumber[] = [];
         const makerToken = rep.address;
         const takerToken = dgd.address;
         orders.forEach(order => {
@@ -192,7 +192,7 @@ contract('Exchange', (accounts: string[]) => {
 
     describe('batchFillOrKillOrders', () => {
       it('should transfer the correct amounts', async () => {
-        const fillTakerTokenAmounts: BigNumber.BigNumber[] = [];
+        const fillTakerTokenAmounts: BigNumber[] = [];
         const makerToken = rep.address;
         const takerToken = dgd.address;
         orders.forEach(order => {
@@ -223,7 +223,7 @@ contract('Exchange', (accounts: string[]) => {
       });
 
       it('should throw if a single order does not fill the expected amount', async () => {
-        const fillTakerTokenAmounts: BigNumber.BigNumber[] = [];
+        const fillTakerTokenAmounts: BigNumber[] = [];
         const makerToken = rep.address;
         const takerToken = dgd.address;
         orders.forEach(order => {

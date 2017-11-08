@@ -1,4 +1,4 @@
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import * as _ from 'lodash';
 import {formatters} from './formatters';
 import {Order} from './order';
@@ -11,7 +11,7 @@ export class ExchangeWrapper {
   }
   public async fillOrderAsync(order: Order, from: string,
                               opts: {
-                                  fillTakerTokenAmount?: BigNumber.BigNumber,
+                                  fillTakerTokenAmount?: BigNumber,
                                   shouldThrowOnInsufficientBalanceOrAllowance?: boolean,
                               } = {}) {
     const shouldThrowOnInsufficientBalanceOrAllowance = !!opts.shouldThrowOnInsufficientBalanceOrAllowance;
@@ -30,7 +30,7 @@ export class ExchangeWrapper {
     return tx;
   }
   public async cancelOrderAsync(order: Order, from: string,
-                                opts: {cancelTakerTokenAmount?: BigNumber.BigNumber} = {}) {
+                                opts: {cancelTakerTokenAmount?: BigNumber} = {}) {
     const params = order.createCancel(opts.cancelTakerTokenAmount);
     const tx = await this.exchange.cancelOrder(
       params.orderAddresses,
@@ -42,7 +42,7 @@ export class ExchangeWrapper {
     return tx;
   }
   public async fillOrKillOrderAsync(order: Order, from: string,
-                                    opts: {fillTakerTokenAmount?: BigNumber.BigNumber} = {}) {
+                                    opts: {fillTakerTokenAmount?: BigNumber} = {}) {
     const shouldThrowOnInsufficientBalanceOrAllowance = true;
     const params = order.createFill(shouldThrowOnInsufficientBalanceOrAllowance, opts.fillTakerTokenAmount);
     const tx = await this.exchange.fillOrKillOrder(
@@ -59,7 +59,7 @@ export class ExchangeWrapper {
   }
   public async batchFillOrdersAsync(orders: Order[], from: string,
                                     opts: {
-                                        fillTakerTokenAmounts?: BigNumber.BigNumber[],
+                                        fillTakerTokenAmounts?: BigNumber[],
                                         shouldThrowOnInsufficientBalanceOrAllowance?: boolean,
                                     } = {}) {
     const shouldThrowOnInsufficientBalanceOrAllowance = !!opts.shouldThrowOnInsufficientBalanceOrAllowance;
@@ -80,7 +80,7 @@ export class ExchangeWrapper {
   }
   public async batchFillOrKillOrdersAsync(orders: Order[], from: string,
                                           opts: {
-                                              fillTakerTokenAmounts?: BigNumber.BigNumber[],
+                                              fillTakerTokenAmounts?: BigNumber[],
                                           } = {}) {
     const params = formatters.createBatchFill(orders, undefined, opts.fillTakerTokenAmounts);
     const tx = await this.exchange.batchFillOrKillOrders(
@@ -96,7 +96,7 @@ export class ExchangeWrapper {
     return tx;
   }
   public async fillOrdersUpToAsync(orders: Order[], from: string,
-                                   opts: {fillTakerTokenAmount?: BigNumber.BigNumber,
+                                   opts: {fillTakerTokenAmount?: BigNumber,
                                           shouldThrowOnInsufficientBalanceOrAllowance?: boolean} = {}) {
     const shouldThrowOnInsufficientBalanceOrAllowance = !!opts.shouldThrowOnInsufficientBalanceOrAllowance;
     const params = formatters.createFillUpTo(orders,
@@ -116,7 +116,7 @@ export class ExchangeWrapper {
     return tx;
   }
   public async batchCancelOrdersAsync(orders: Order[], from: string,
-                                      opts: {cancelTakerTokenAmounts?: BigNumber.BigNumber[]} = {}) {
+                                      opts: {cancelTakerTokenAmounts?: BigNumber[]} = {}) {
     const params = formatters.createBatchCancel(orders, opts.cancelTakerTokenAmounts);
     const tx = await this.exchange.batchCancelOrders(
       params.orderAddresses,
@@ -143,13 +143,13 @@ export class ExchangeWrapper {
     );
     return isValidSignature;
   }
-  public async isRoundingErrorAsync(numerator: BigNumber.BigNumber, denominator: BigNumber.BigNumber,
-                                    target: BigNumber.BigNumber): Promise<boolean> {
+  public async isRoundingErrorAsync(numerator: BigNumber, denominator: BigNumber,
+                                    target: BigNumber): Promise<boolean> {
     const isRoundingError = await this.exchange.isRoundingError(numerator, denominator, target);
     return isRoundingError;
   }
-  public async getPartialAmountAsync(numerator: BigNumber.BigNumber, denominator: BigNumber.BigNumber,
-                                     target: BigNumber.BigNumber): Promise<BigNumber.BigNumber> {
+  public async getPartialAmountAsync(numerator: BigNumber, denominator: BigNumber,
+                                     target: BigNumber): Promise<BigNumber> {
     const partialAmount = new BigNumber(await this.exchange.getPartialAmount(numerator, denominator, target));
     return partialAmount;
   }

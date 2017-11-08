@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import BN = require('bn.js');
 import ethUtil = require('ethereumjs-util');
 import ABI = require('ethereumjs-abi');
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 
 export const crypto = {
   /*
@@ -19,7 +19,7 @@ export const crypto = {
       const isNumber = _.isFinite(arg);
       if (isNumber) {
         argTypes.push('uint8');
-      } else if ((arg as BigNumber.BigNumber).isBigNumber) {
+      } else if ((arg as BigNumber).isBigNumber) {
         argTypes.push('uint256');
         args[i] = new BN(arg.toString(10), 10);
       } else if (ethUtil.isValidAddress(arg)) {
