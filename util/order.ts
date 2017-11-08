@@ -4,7 +4,7 @@ import promisify = require('es6-promisify');
 import Web3 = require('web3');
 import {OrderParams} from './types';
 import {crypto} from './crypto';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 
 // In order to benefit from type-safety, we re-assign the global web3 instance injected by Truffle
 // with type `any` to a variable of type `Web3`.
@@ -41,7 +41,7 @@ export class Order {
       s: ethUtil.bufferToHex(s),
     });
   }
-  public createFill(shouldThrowOnInsufficientBalanceOrAllowance?: boolean, fillTakerTokenAmount?: BigNumber.BigNumber) {
+  public createFill(shouldThrowOnInsufficientBalanceOrAllowance?: boolean, fillTakerTokenAmount?: BigNumber) {
     const fill = {
       orderAddresses: [
         this.params.maker,
@@ -66,7 +66,7 @@ export class Order {
     };
     return fill;
   }
-  public createCancel(cancelTakerTokenAmount?: BigNumber.BigNumber) {
+  public createCancel(cancelTakerTokenAmount?: BigNumber) {
     const cancel = {
       orderAddresses: [
         this.params.maker,

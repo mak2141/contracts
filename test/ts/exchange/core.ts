@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as Web3 from 'web3';
 import ethUtil = require('ethereumjs-util');
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import {ZeroEx} from '0x.js';
 import {chaiSetup} from '../utils/chai_setup';
 import {constants} from '../../../util/constants';

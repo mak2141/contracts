@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import {ZeroEx} from '0x.js';
 import {Order} from './order';
 import {OrderParams, DefaultOrderParams, OptionalOrderParams} from './types';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 
 export class OrderFactory {
   private defaultOrderParams: DefaultOrderParams;
