@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import {chaiSetup} from './utils/chai_setup';
 import Web3 = require('web3');
 import {ZeroEx} from '0x.js';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import {Artifacts} from '../../util/artifacts';
 import {ContractInstance} from '../../util/types';
 
@@ -16,7 +16,7 @@ contract('ZRXToken', (accounts: string[]) => {
   const spender = accounts[1];
   let zeroEx: ZeroEx;
 
-  let MAX_UINT: BigNumber.BigNumber;
+  let MAX_UINT: BigNumber;
 
   let zrx: ContractInstance;
   let zrxAddress: string;

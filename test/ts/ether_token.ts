@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import {chaiSetup} from './utils/chai_setup';
 import Web3 = require('web3');
 import {ZeroEx, ZeroExError} from '0x.js';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 import promisify = require('es6-promisify');
 import {Artifacts} from '../../util/artifacts';
 

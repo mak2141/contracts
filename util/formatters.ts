@@ -1,12 +1,12 @@
 import * as _ from 'lodash';
 import {BatchFillOrders, BatchCancelOrders, FillOrdersUpTo} from './types';
 import {Order} from './order';
-import * as BigNumber from 'bignumber.js';
+import {BigNumber} from 'bignumber.js';
 
 export const formatters = {
   createBatchFill(orders: Order[],
                   shouldThrowOnInsufficientBalanceOrAllowance: boolean,
-                  fillTakerTokenAmounts: BigNumber.BigNumber[] = []) {
+                  fillTakerTokenAmounts: BigNumber[] = []) {
     const batchFill: BatchFillOrders = {
       orderAddresses: [],
       orderValues: [],
@@ -32,7 +32,7 @@ export const formatters = {
   },
   createFillUpTo(orders: Order[],
                  shouldThrowOnInsufficientBalanceOrAllowance: boolean,
-                 fillTakerTokenAmount: BigNumber.BigNumber) {
+                 fillTakerTokenAmount: BigNumber) {
     const fillUpTo: FillOrdersUpTo = {
       orderAddresses: [],
       orderValues: [],
@@ -53,7 +53,7 @@ export const formatters = {
     });
     return fillUpTo;
   },
-  createBatchCancel(orders: Order[], cancelTakerTokenAmounts: BigNumber.BigNumber[] = []) {
+  createBatchCancel(orders: Order[], cancelTakerTokenAmounts: BigNumber[] = []) {
     const batchCancel: BatchCancelOrders = {
       orderAddresses: [],
       orderValues: [],
