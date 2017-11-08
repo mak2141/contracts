@@ -27,7 +27,6 @@
   "homepage": "https://github.com/0xProject/0x-Smart-Contracts#readme",
   "devDependencies": {
     "@types/bluebird": "^3.5.3",
-    "@types/bignumber.js": "^4.0.2",
     "@types/lodash": "^4.14.63",
     "@types/node": "^7.0.13",
     "chai": "^4.1.2",
@@ -45,8 +44,6 @@
     "types-ethereumjs-util": "machinomy/types-ethereumjs-util",
     "typescript": "^2.5.2",
     "web3-typescript-typings": "^0.6.0",
-    "@types/semver": "^5.4.0",
-    "semver": "^5.4.1",
     "solc": "^0.4.15",
     "yargs": "^8.0.2"
   },
