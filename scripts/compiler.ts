@@ -107,7 +107,7 @@ export class Compiler {
         if (_.isUndefined(this.contractSources)) {
             throw new Error('Contract sources not yet initialized');
         }
-        
+
         const source = this.contractSources[contractBaseName];
         const contractName = path.basename(contractBaseName, SOLIDITY_FILE_EXTENSION);
         const currentArtifactPath = `${this.artifactsDir}/${contractName}.json`;
