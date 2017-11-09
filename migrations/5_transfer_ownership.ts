@@ -4,6 +4,7 @@ const {
   TokenTransferProxy,
   MultiSigWalletWithTimeLock,
   TokenRegistry,
+  TokenRegistryGovernance,
 } = new Artifacts(artifacts);
 
 let tokenRegistry: ContractInstance;
@@ -13,12 +14,14 @@ module.exports = (deployer: any, network: string) => {
       Promise.all([
         TokenTransferProxy.deployed(),
         TokenRegistry.deployed(),
+        TokenRegistryGovernance.deployed(),
       ]).then((instances: ContractInstance[]) => {
         let tokenTransferProxy: ContractInstance;
-        [tokenTransferProxy, tokenRegistry] = instances;
+        let tokenRegistryGovernance: ContractInstance;
+        [tokenTransferProxy, tokenRegistry, tokenRegistryGovernance] = instances;
         return tokenTransferProxy.transferOwnership(MultiSigWalletWithTimeLock.address);
       }).then(() => {
-        return tokenRegistry.transferOwnership(MultiSigWalletWithTimeLock.address);
+        return tokenRegistry.transferOwnership(TokenRegistryGovernance.address);
       });
     });
   }

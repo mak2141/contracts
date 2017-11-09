@@ -5,6 +5,7 @@ const {
   TokenTransferProxy,
   EtherToken,
   TokenRegistry,
+  TokenRegistryGovernance,
 } = new Artifacts(artifacts);
 
 let multiSigConfigByNetwork: MultiSigConfigByNetwork;
@@ -30,6 +31,8 @@ module.exports = (deployer: any, network: string, accounts: string[]) => {
           return deployer.deploy(TokenTransferProxy);
       }).then(() => {
           return deployer.deploy(TokenRegistry);
+      }).then(() => {
+            return deployer.deploy(TokenRegistryGovernance, TokenRegistry.address);
       }).then(() => {
           return deployer.deploy(EtherToken);
       });
