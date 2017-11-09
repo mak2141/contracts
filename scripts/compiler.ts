@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
 import * as ethUtil from 'ethereumjs-util';
@@ -7,6 +6,13 @@ import promisify = require('es6-promisify');
 import solc = require('solc');
 import {binPaths} from './solc/bin_paths';
 import {utils} from './../util/utils';
+import {
+    readdirAsync,
+    readFileAsync,
+    writeFileAsync,
+    mkdirAsync,
+    doesPathExistSync,
+} from './../util/fs_wrapper';
 import {
     ContractArtifact,
     ContractNetworks,
@@ -18,11 +24,6 @@ import {
 } from './../util/types';
 
 const consoleLog = utils.consoleLog;
-const readdirAsync = promisify(fs.readdir);
-const readFileAsync = promisify(fs.readFile);
-const writeFileAsync = promisify(fs.writeFile);
-const doesPathExist = promisify(fs.access);
-const mkdirAsync = promisify(fs.mkdir);
 
 const JSON_REPLACER: null = null;
 const NUMBER_OF_JSON_SPACES = 4;
@@ -36,11 +37,11 @@ export class Compiler {
     private contractSources: ContractSources;
     private solcErrors: Set<string>;
 
-    constructor(options: CompilerOptions) {
-        this.contractsDir = options.contractsDir;
-        this.networkId = options.networkId;
-        this.optimizerEnabled = options.optimizerEnabled;
-        this.artifactsDir = options.artifactsDir;
+    constructor(opts: CompilerOptions) {
+        this.contractsDir = opts.contractsDir;
+        this.networkId = opts.networkId;
+        this.optimizerEnabled = opts.optimizerEnabled;
+        this.artifactsDir = opts.artifactsDir;
         this.solcErrors = new Set();
     }
     /**
@@ -246,7 +247,7 @@ export class Compiler {
      * Creates the artifacts directory if it does not already exist.
      */
     private async createArtifactsDirIfDoesNotExistAsync(): Promise<void> {
-        if (!fs.existsSync(this.artifactsDir)) {
+        if (!doesPathExistSync(this.artifactsDir)) {
             consoleLog('Creating artifacts directory...');
             await mkdirAsync(this.artifactsDir);
         }
