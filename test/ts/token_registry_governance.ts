@@ -54,17 +54,14 @@ contract('TokenRegistryGovernance', (accounts: string[]) => {
 
   beforeEach(async () => {
     tokenReg = await TokenRegistry.new();
-    tokenRegGov = await TokenRegistryGovernance.new();
-    tokenReg.transferOwnership(tokenRegGov.address);
-    tokenRegGovWrapper = new TokenRegGovWrapper(tokenRegGov);
+    tokenRegGov = await TokenRegistryGovernance.new(tokenReg.address);
+    await tokenReg.transferOwnership(tokenRegGov.address);
+    tokenRegGovWrapper = await new TokenRegGovWrapper(tokenRegGov);
   });
 
   describe('tokenRegistryGovernance is owner', async () => {
     it('should have TokenRegistryGovernance address as owner of TokenRegistry contract', async () => {
       const tokenRegOwner = await tokenReg.owner.call();
-      const tokenRegGovOwner = await tokenRegGov.owner.call();
-      console.log('account0: ', ownerGov);
-      console.log('tokenRegGov Owner: ', tokenRegGovOwner);
       expect(tokenRegOwner).to.be.deep.equal(tokenRegGov.address);
     });
   });
@@ -77,14 +74,11 @@ contract('TokenRegistryGovernance', (accounts: string[]) => {
     it('should add token metadata when called by ownerGov', async () => {
       await tokenRegGovWrapper.addTokenAsync(token1, ownerGov);
       const tokenData = await tokenRegGovWrapper.getTokenMetaDataAsync(token1.address);
-      console.log(tokenData);
-      console.log(token1);
       expect(tokenData).to.be.deep.equal(token1);
     });
 
     it('should throw if token already exists', async () => {
       await tokenRegGovWrapper.addTokenAsync(token1, ownerGov);
-
       return expect(tokenRegGovWrapper.addTokenAsync(token1, ownerGov)).to.be.rejectedWith(constants.INVALID_OPCODE);
     });
 
