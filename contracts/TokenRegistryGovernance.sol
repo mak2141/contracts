@@ -106,7 +106,7 @@ contract TokenRegistryGovernance is Ownable {
     mapping (uint => ProposalStatus) status;
     mapping (uint => TokenMetadata) public proposedTokens;
 
-    address tokenRegistryAddress;
+    address public tokenRegistryAddress;
     TokenRegistry tokenRegistry;
     uint id = 1;
 
@@ -115,10 +115,9 @@ contract TokenRegistryGovernance is Ownable {
     /// @dev Instantiate token proposal contract.
     /// @param _tokenRegistryAddress : token registry address.
     function TokenRegistryGovernance(address _tokenRegistryAddress) {
-        tokenRegistryAddress = _tokenRegistryAddress;
         tokenRegistry = TokenRegistry(_tokenRegistryAddress);
+        tokenRegistryAddress = _tokenRegistryAddress;
     }
-
 
     // ------------- FUNCTIONS -------------
 
@@ -198,6 +197,7 @@ contract TokenRegistryGovernance is Ownable {
       public onlyOwner
       {
         tokenRegistry = TokenRegistry(_newTokenRegistryAddress);
+        tokenRegistryAddress = _newTokenRegistryAddress;
         NewTokenRegistryLink(_newTokenRegistryAddress);
       }
 
@@ -236,6 +236,12 @@ contract TokenRegistryGovernance is Ownable {
     function getLastID() public constant returns (uint _id){
         return id-1;
     }
+
+    /// @dev Returns the address of the tokenRegistry linked to this contract
+    function getTokenRegistryAddress() public constant returns (address)
+                {
+                  return tokenRegistryAddress;
+                }
 
     // ------------- TOKEN REGISTRY WRAPPER FUNCTIONS  -------------
 
