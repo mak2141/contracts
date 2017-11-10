@@ -8,8 +8,6 @@ export class TokenRegWrapper {
   }
   public async addTokenAsync(token: Token, from: string) {
 
-    console.log(token);
-    
     const tx = await this.tokenReg.addToken(
       token.address,
       token.name,
