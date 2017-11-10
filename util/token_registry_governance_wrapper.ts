@@ -6,10 +6,31 @@ export class TokenRegGovWrapper {
   constructor(tokenRegGovContractInstance: ContractInstance) {
     this.tokenRegGov = tokenRegGovContractInstance;
   }
+  public async proposeTokenAsync(token: Token, from: string) {
+    const tx = await this.tokenRegGov.proposeToken(
+      token.address,
+      token.name,
+      token.symbol,
+      token.decimals,
+      token.ipfsHash,
+      token.swarmHash,
+      {from},
+    );
+    return tx;
+  };
+  public async approveProposalAsync(proposalID: number, from: string) {
+    const tx = await this.tokenRegGov.approveProposal(proposalID, {from});
+    return tx;
+  }
+  public async refuseProposalAsync(proposalID: number, from: string) {
+    const tx = await this.tokenRegGov.refuseProposal(proposalID, {from});
+    return tx;
+  };
+  public async linkToNewTokenRegistryAsync(newTokenRegistryAddress: string, from: string) {
+    const tx = await this.tokenRegGov.linkToNewTokenRegistry(newTokenRegistryAddress, {from});
+    return tx;
+  };
   public async addTokenAsync(token: Token, from: string) {
-
-    console.log(token);
-
     const tx = await this.tokenRegGov.addToken(
       token.address,
       token.name,
@@ -21,8 +42,8 @@ export class TokenRegGovWrapper {
     );
     return tx;
   }
-  public async getTokenMetaDataAsync(tokenAddress: string) {
-    const data = await this.tokenRegGov.getTokenMetaData(tokenAddress);
+  public async getProposalMetaDataAsync(proposalID: number) {
+    const data = await this.tokenRegGov.getProposalMetaData(proposalID);
     const token: Token = {
       address: data[0],
       name: data[1],
@@ -33,6 +54,7 @@ export class TokenRegGovWrapper {
     };
     return token;
   }
+
   public async getTokenByNameAsync(tokenName: string) {
     const data = await this.tokenRegGov.getTokenByName(tokenName);
     const token: Token = {
