@@ -41,6 +41,7 @@ module.exports = (deployer: any, network: string, accounts: string[]) => {
       [MultiSigWalletWithTimeLock, config.owners, config.confirmationsRequired, config.secondsRequired],
       TokenTransferProxy,
       TokenRegistry,
+      TokenRegistryGovernance,
     ]);
   }
 };
