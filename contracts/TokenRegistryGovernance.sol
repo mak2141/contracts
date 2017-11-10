@@ -41,6 +41,9 @@ contract TokenRegistryGovernance is Ownable {
     // Proposal was refused and added to registry
     event RefusedProposal(uint proposalID);
 
+    // Wrap New Token Registry
+    event NewTokenRegistryLink(address _newTokenRegistryAddress);
+
     // ------------- STRUCTURES -------------
 
     // Token structure
@@ -105,7 +108,7 @@ contract TokenRegistryGovernance is Ownable {
 
     address tokenRegistryAddress;
     TokenRegistry tokenRegistry;
-    uint id = 0;
+    uint id = 1;
 
     // ------------- CONSTRUCTOR -------------
 
@@ -188,6 +191,15 @@ contract TokenRegistryGovernance is Ownable {
         status[_id] = ProposalStatus.Refused;
         RefusedProposal(_id);
     }
+
+    /// @dev Allows owner to link this contract to a new TokenRegistry
+    /// @param _newTokenRegistryAddress address of new Token Registry
+    function linkToNewTokenRegistry(address _newTokenRegistryAddress)
+      public onlyOwner
+      {
+        tokenRegistry = TokenRegistry(_newTokenRegistryAddress);
+        NewTokenRegistryLink(_newTokenRegistryAddress);
+      }
 
     /// @dev Allows anyone to retrieve the status of a proposal
     /// @param _id identifier of proposal to retrieve
@@ -283,6 +295,7 @@ contract TokenRegistryGovernance is Ownable {
         tokenExists(_token)
         symbolDoesNotExist(_symbol)
     {
+
         tokenRegistry.setTokenSymbol(_token, _symbol);
     }
 
@@ -306,6 +319,13 @@ contract TokenRegistryGovernance is Ownable {
         tokenExists(_token)
     {
         tokenRegistry.setTokenSwarmHash(_token, _swarmHash);
+    }
+
+    /// @dev transfer the ownership of the TokenRegistry associated with this contract
+    /// @param _newOwner is the address that will receive the ownership.
+    function transferTokenRegistryOwnership(address _newOwner) public onlyOwner
+    {
+      tokenRegistry.transferOwnership(_newOwner);
     }
 }
 /*
