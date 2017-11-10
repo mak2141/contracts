@@ -6,9 +6,11 @@ export class TokenRegWrapper {
   constructor(tokenRegContractInstance: ContractInstance) {
     this.tokenReg = tokenRegContractInstance;
   }
-  public addTokenAsync(token: Token, from: string) {
+  public async addTokenAsync(token: Token, from: string) {
 
-    const tx = this.tokenReg.addToken(
+    console.log(token);
+    
+    const tx = await this.tokenReg.addToken(
       token.address,
       token.name,
       token.symbol,

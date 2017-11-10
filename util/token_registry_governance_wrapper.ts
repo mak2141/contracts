@@ -7,8 +7,8 @@ export class TokenRegGovWrapper {
     this.tokenRegGov = tokenRegGovContractInstance;
   }
   public async addTokenAsync(token: Token, from: string) {
-    const tokenRegGovOwner = await this.tokenRegGov.owner.call();
-    console.log('tokenRegGov Owner (in wrapper): ', tokenRegGovOwner);
+
+    console.log(token);
 
     const tx = await this.tokenRegGov.addToken(
       token.address,
