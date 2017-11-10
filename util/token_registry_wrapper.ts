@@ -7,6 +7,7 @@ export class TokenRegWrapper {
     this.tokenReg = tokenRegContractInstance;
   }
   public addTokenAsync(token: Token, from: string) {
+
     const tx = this.tokenReg.addToken(
       token.address,
       token.name,
