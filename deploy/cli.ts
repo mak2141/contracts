@@ -1,8 +1,7 @@
 import * as yargs from 'yargs';
 import * as path from 'path';
 import {CompilerOptions, DeployerOptions} from './src/utils/types';
-import {Compiler} from './src/compiler';
-import {runMigrationsAsync} from './migrations/migrate';
+import {commands} from './src/commands';
 
 const DEFAULT_OPTIMIZER_ENABLED = false;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
@@ -55,22 +54,28 @@ const onCompileCommand = async (): Promise<void> => {
         optimizerEnabled: args.optimize ? 1 : 0,
         artifactsDir: args.artifactsDir,
     };
-    const compiler = new Compiler(opts);
-    await compiler.compileAllAsync();
+    await commands.compileAsync(opts);
 };
 
 /**
  * Compiles all contracts and runs migration script with options passed in through CLI.
  */
 const onMigrateCommand = async (): Promise<void> => {
-    await onCompileCommand();
-    const opts: DeployerOptions = {
+    const compilerOpts: CompilerOptions = {
+        contractsDir: args.contractsDir,
+        networkId: args.networkId,
+        optimizerEnabled: args.optimize ? 1 : 0,
+        artifactsDir: args.artifactsDir,
+    };
+    await commands.compileAsync(compilerOpts);
+
+    const deployerOpts: DeployerOptions = {
         artifactsDir: args.artifactsDir,
         jsonrpcPort: args.jsonrpcPort,
         networkId: args.networkId,
         gasPrice: args.gasPrice,
     };
-    await runMigrationsAsync(opts);
+    await commands.migrateAsync(deployerOpts);
 };
 
 /**
