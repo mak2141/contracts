@@ -2,6 +2,7 @@ import * as Web3 from 'web3';
 import * as _ from 'lodash';
 import {Contract} from './utils/contract';
 import {utils} from './utils/utils';
+import {encoder} from './utils/encoder';
 import {writeFileAsync} from './utils/fs_wrapper';
 import promisify = require('es6-promisify');
 import {
@@ -61,33 +62,48 @@ export class Deployer {
         };
         const abi = contractData.abi;
         const contract: Web3.Contract<Web3.ContractInstance> = this._web3.eth.contract(abi);
-        // Deployment is not promisified because contract.new fires the callback twice
-        // contract is inferred as 'any' because TypeScript does is not able to read 'new' from the Contract interface
-        return (contract as any).new(...args, txData, async (err: Error, res: any): Promise<Web3.ContractInstance> => {
-            if (err) {
-                throw err;
-            } else if (_.isUndefined(res.address) && !_.isUndefined(res.transactionHash)) {
-                consoleLog(`${contractName}.sol transactionHash: ${res.transactionHash}`);
-            } else {
-                const web3ContractInstance: Web3.ContractInstance = res;
-                const deployedAddress = web3ContractInstance.address;
-                consoleLog(`${contractName}.sol successfully deployed at ${deployedAddress}`);
-                const newContractData = {
-                    ...contractData,
-                    address: deployedAddress,
-                };
-                const newArtifact = {
-                    ...contractArtifact,
-                    networks: {
-                        ...contractArtifact.networks,
-                        [this._networkId]: newContractData,
-                    },
-                };
-                const artifactString = stringifyWithFormatting(newArtifact);
-                await writeFileAsync(artifactPath, artifactString);
-                const promiWeb3ContractInstance = new Contract(web3ContractInstance, this._defaults);
-                return promiWeb3ContractInstance;
-            }
+        const web3ContractInstance = await this.promisifiedDeploy(contract, args, txData);
+        const deployedAddress = web3ContractInstance.address;
+        consoleLog(`${contractName}.sol successfully deployed at ${deployedAddress}`);
+        const encodedConstructorArgs = encoder.encodeConstructorArgsFromAbi(args, abi);
+        const newContractData = {
+            ...contractData,
+            address: deployedAddress,
+            constructor_args: encodedConstructorArgs,
+        };
+        const newArtifact = {
+            ...contractArtifact,
+            networks: {
+                ...contractArtifact.networks,
+                [this._networkId]: newContractData,
+            },
+        };
+        const artifactString = stringifyWithFormatting(newArtifact);
+        await writeFileAsync(artifactPath, artifactString);
+        const promiWeb3ContractInstance = new Contract(web3ContractInstance, this._defaults);
+        return promiWeb3ContractInstance;
+    }
+    /**
+     * A promisified version of `contract.new`.
+     * @param contract Web3 contract to deploy.
+     * @param args Constructor arguments to use in deployment.
+     * @param txData Tx options used for deployment.
+     */
+    // tslint:disable-next-line:max-line-length
+    private promisifiedDeploy(contract: Web3.Contract<Web3.ContractInstance>, args: any[], txData: Partial<Web3.TxData>): Promise<any> {
+        const deployPromise = new Promise((resolve, reject) => {
+            // tslint:disable-next-line:max-line-length
+            // contract is inferred as 'any' because TypeScript does is not able to read 'new' from the Contract interface
+            (contract as any).new(...args, txData, async (err: Error, res: any): Promise<any> => {
+                if (err) {
+                    reject(err);
+                } else if (_.isUndefined(res.address) && !_.isUndefined(res.transactionHash)) {
+                    consoleLog(`transactionHash: ${res.transactionHash}`);
+                } else {
+                    resolve(res);
+                }
+            });
         });
+        return deployPromise;
     }
 }

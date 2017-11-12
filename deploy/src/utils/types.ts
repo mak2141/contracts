@@ -23,6 +23,7 @@ export interface ContractData {
     abi: Web3.ContractAbi;
     unlinked_binary: string;
     address?: string;
+    constructor_args?: string;
     updated_at: number;
 }
 
