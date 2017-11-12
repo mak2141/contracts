@@ -48,15 +48,17 @@ export class Deployer {
         if (_.isUndefined(contractData)) {
             throw new Error('No contract data found on this network');
         }
-        const abi = contractData.abi;
         const data = contractData.unlinked_binary;
-        const contract: Web3.Contract<Web3.ContractInstance> = this._web3.eth.contract(abi);
+        const accounts: string[] = await promisify(this._web3.eth.getAccounts)();
+        const gas = await promisify(this._web3.eth.estimateGas)({data});
         const txData: Partial<Web3.TxData> = {
             ...this._defaults,
-            from: this._web3.eth.accounts[0],
-            data: contractData.unlinked_binary,
-            gas: 1000000,
+            from: accounts[0],
+            data,
+            gas,
         };
+        const abi = contractData.abi;
+        const contract: Web3.Contract<Web3.ContractInstance> = this._web3.eth.contract(abi);
         // Deployment is not promisified because contract.new fire the callback twice
         return (contract as any).new(...args, txData, async (err: Error, res: any): Promise<Web3.ContractInstance> => {
             if (err) {
