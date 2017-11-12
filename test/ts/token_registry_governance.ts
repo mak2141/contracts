@@ -23,12 +23,11 @@ contract('TokenRegistryGovernance', (accounts: string[]) => {
   const tokenAddress1 = `0x${ethUtil.setLength(ethUtil.toBuffer('0x1'), 20, false).toString('hex')}`;
   const tokenAddress2 = `0x${ethUtil.setLength(ethUtil.toBuffer('0x2'), 20, false).toString('hex')}`;
 
-  enum ProposalStatus {
-                        Null = new BigNumber(0),
-                        Pending = new BigNumber(1),
-                        Approved = new BigNumber(2),
-                        Refused = new BigNumber(3),
-                      };
+  const Null = new BigNumber(0);
+  const Pending = new BigNumber(1);
+  const Approved = new BigNumber(2);
+  const Refused = new BigNumber(3);
+
 
   const token1 = {
     address: tokenAddress1,
@@ -120,7 +119,7 @@ contract('TokenRegistryGovernance', (accounts: string[]) => {
       const id0 = await tokenRegGov.getLastID();
       const status = await tokenRegGov.getProposalStatus(id0);
       const bigStatus = new BigNumber(status);
-      expect(bigStatus).to.be.bignumber.equal(ProposalStatus.Pending);
+      expect(bigStatus).to.be.bignumber.equal(Pending);
     });
 
     describe('approveProposal', async () => {
@@ -139,7 +138,7 @@ contract('TokenRegistryGovernance', (accounts: string[]) => {
         await tokenRegGovWrapper.approveProposalAsync(1, ownerGov);
         const status = await tokenRegGov.getProposalStatus(1);
         const bigStatus = new BigNumber(status);
-        expect(bigStatus).to.be.bignumber.equal(ProposalStatus.Approved);
+        expect(bigStatus).to.be.bignumber.equal(Approved);
       });
 
       it('should throw if proposal already approved', async () => {
@@ -166,7 +165,7 @@ contract('TokenRegistryGovernance', (accounts: string[]) => {
         await tokenRegGovWrapper.refuseProposalAsync(1, ownerGov);
         const status = await tokenRegGov.getProposalStatus(1);
         const bigStatus = new BigNumber(status);
-        expect(bigStatus).to.be.bignumber.equal(ProposalStatus.Refused);
+        expect(bigStatus).to.be.bignumber.equal(Refused);
       });
     });
   });
