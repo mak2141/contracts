@@ -29,7 +29,6 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.3",
     "@types/lodash": "^4.14.63",
-    "@types/node": "^7.0.13",
     "@types/request-promise-native": "^1.0.2",
     "@types/yargs": "^8.0.2",
     "chai": "^4.1.2",
@@ -51,6 +50,7 @@
   "dependencies": {
     "0x.js": "^0.22.6",
     "@types/isomorphic-fetch": "^0.0.34",
+    "@types/node": "^8.0.51",
     "bignumber.js": "^4.1.0",
     "bluebird": "^3.5.0",
     "bn.js": "^4.11.6",

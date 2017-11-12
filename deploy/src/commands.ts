@@ -12,4 +12,9 @@ export const commands = {
         const deployer = new Deployer(opts);
         await runMigrationsAsync(deployer);
     },
-}
+    async deployAsync(contractName: string, args: any[], opts: DeployerOptions): Promise<void> {
+        const deployer = new Deployer(opts);
+        await deployer.deployAsync(contractName, args);
+    },
+};
+
