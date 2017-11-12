@@ -10,8 +10,8 @@
     lodash.values "^4.3.0"
 
 "0x.js@^0.22.4":
-  version "0.22.5"
-  resolved "https://registry.yarnpkg.com/0x.js/-/0x.js-0.22.5.tgz#17f8dda534e59219284e37a58062c02651197cfa"
+  version "0.22.6"
+  resolved "https://registry.yarnpkg.com/0x.js/-/0x.js-0.22.6.tgz#bc3ff79b6d71f8cf7fae3c78b2c776cfa79c193a"
   dependencies:
     "0x-json-schemas" "^0.6.1"
     bignumber.js "^4.1.0"
@@ -32,8 +32,8 @@
   resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.18.tgz#6a60435d4663e290f3709898a4f75014f279c4d6"
 
 "@types/form-data@*":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@types/form-data/-/form-data-2.2.0.tgz#a98aac91dc99857b6af24caef7ca6df302f31565"
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@types/form-data/-/form-data-2.2.1.tgz#ee2b3b8eaa11c0938289953606b745b738c54b1e"
   dependencies:
     "@types/node" "*"
 
@@ -42,26 +42,26 @@
   resolved "https://registry.yarnpkg.com/@types/isomorphic-fetch/-/isomorphic-fetch-0.0.34.tgz#3c3483e606c041378438e951464f00e4e60706d6"
 
 "@types/lodash@^4.14.63":
-  version "4.14.82"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.82.tgz#18948897f415ef199a93156a66ef7ce1d0d005b9"
+  version "4.14.85"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.85.tgz#a16fbf942422f6eca5622b6910492c496c35069b"
 
 "@types/node@*":
-  version "8.0.50"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.50.tgz#dc545448e128c88c4eec7cd64025fcc3b7604541"
+  version "8.0.51"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.51.tgz#b31d716fb8d58eeb95c068a039b9b6292817d5fb"
 
 "@types/node@^7.0.13":
   version "7.0.46"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.46.tgz#c3dedd25558c676b3d6303e51799abb9c3f8f314"
 
 "@types/request-promise-native@^1.0.2":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@types/request-promise-native/-/request-promise-native-1.0.9.tgz#b0905e02f67891043ac989a891aa54864a9a174a"
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@types/request-promise-native/-/request-promise-native-1.0.10.tgz#94d142fb817bd8df4a080da1f3ef0bae45fc6304"
   dependencies:
     "@types/request" "*"
 
 "@types/request@*":
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/@types/request/-/request-2.0.7.tgz#a2aa5a57317c21971d9b024e393091ab2c99ab98"
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/@types/request/-/request-2.0.8.tgz#424d3de255868107ed4dd6695c65c5f1766aba80"
   dependencies:
     "@types/form-data" "*"
     "@types/node" "*"
@@ -1011,8 +1011,8 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
 color-convert@^1.9.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.0.tgz#1accf97dd739b983bf994d56fec8f95853641b7a"
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.1.tgz#c1261107aeb2f294ebffec9ed9ecad529a6097ed"
   dependencies:
     color-name "^1.1.1"
 
@@ -1650,11 +1650,11 @@ fs.realpath@^1.0.0:
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
 
 fsevents@^1.0.0:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-1.1.2.tgz#3282b713fb3ad80ede0e9fcf4611b5aa6fc033f4"
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-1.1.3.tgz#11f82318f5fe7bb2cd22965a108e9306208216d8"
   dependencies:
     nan "^2.3.0"
-    node-pre-gyp "^0.6.36"
+    node-pre-gyp "^0.6.39"
 
 fstream-ignore@^1.0.5:
   version "1.0.5"
@@ -2640,7 +2640,7 @@ node-libs-browser@^2.0.0:
     util "^0.10.3"
     vm-browserify "0.0.4"
 
-node-pre-gyp@^0.6.36:
+node-pre-gyp@^0.6.39:
   version "0.6.39"
   resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.6.39.tgz#c00e96860b23c0e1420ac7befc5044e1d78d8649"
   dependencies:
@@ -3785,8 +3785,8 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
 type-detect@^4.0.0:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.3.tgz#0e3f2670b44099b0b46c284d136a7ef49c74c2ea"
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.5.tgz#d70e5bc81db6de2a381bcaca0c6e0cbdc7635de2"
 
 types-bn@^0.0.1:
   version "0.0.1"
@@ -3802,7 +3802,7 @@ types-ethereumjs-util@machinomy/types-ethereumjs-util:
     buffer "^5.0.6"
     rlp "^2.0.0"
 
-typescript@^2.5.2:
+typescript@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.6.1.tgz#ef39cdea27abac0b500242d6726ab90e0c846631"
 
@@ -3923,9 +3923,9 @@ watchpack@^1.4.0:
     chokidar "^1.7.0"
     graceful-fs "^4.1.2"
 
-web3-typescript-typings@^0.6.0:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/web3-typescript-typings/-/web3-typescript-typings-0.6.4.tgz#cefc960258498258ebb17a9ebd149927de38a24e"
+web3-typescript-typings@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/web3-typescript-typings/-/web3-typescript-typings-0.7.1.tgz#4b1145b9fd7e80292c2ab6b75e2359cf95f0efe1"
   dependencies:
     bignumber.js "^4.0.2"
 

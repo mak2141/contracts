@@ -19,7 +19,7 @@ export const crypto = {
       const isNumber = _.isFinite(arg);
       if (isNumber) {
         argTypes.push('uint8');
-      } else if ((arg as BigNumber).isBigNumber) {
+      } else if ((arg as any).isBigNumber) {
         argTypes.push('uint256');
         args[i] = new BN(arg.toString(10), 10);
       } else if (ethUtil.isValidAddress(arg)) {

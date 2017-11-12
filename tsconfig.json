@@ -22,9 +22,9 @@
         "./util/**/*",
         "./test/**/*",
         "./migrations/**/*",
-        "./scripts/**/*"
+        "./deploy/**/*"
     ],
     "exclude": [
-        "./scripts/solc/solc_bin"
+        "./deploy/solc/solc_bin"
     ]
 }

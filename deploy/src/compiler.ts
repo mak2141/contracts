@@ -4,15 +4,15 @@ import * as ethUtil from 'ethereumjs-util';
 import * as Web3 from 'web3';
 import promisify = require('es6-promisify');
 import solc = require('solc');
-import {binPaths} from './solc/bin_paths';
-import {utils} from './../util/utils';
+import {binPaths} from './../solc/bin_paths';
+import {utils} from './utils/utils';
 import {
     readdirAsync,
     readFileAsync,
     writeFileAsync,
     mkdirAsync,
     doesPathExistSync,
-} from './../util/fs_wrapper';
+} from './utils/fs_wrapper';
 import {
     ContractArtifact,
     ContractNetworks,
@@ -21,12 +21,9 @@ import {
     CompilerOptions,
     ContractSources,
     ImportContents,
-} from './../util/types';
+} from './utils/types';
 
-const consoleLog = utils.consoleLog;
-
-const JSON_REPLACER: null = null;
-const NUMBER_OF_JSON_SPACES = 4;
+const {consoleLog, stringifyWithFormatting} = utils;
 const SOLIDITY_FILE_EXTENSION = '.sol';
 
 export class Compiler {
@@ -93,7 +90,7 @@ export class Compiler {
                       ...sources,
                       ...nestedSources,
                     };
-                } catch(err) {
+                } catch (err) {
                     consoleLog(`${contentPath} is not a directory or ${SOLIDITY_FILE_EXTENSION} file`);
                 }
             }
@@ -142,7 +139,7 @@ export class Compiler {
         };
         const solcVersion = this.parseSolidityVersion(source);
         const fullSolcVersion = binPaths[solcVersion];
-        const solcBinPath = `./solc/solc_bin/${fullSolcVersion}`;
+        const solcBinPath = `./../solc/solc_bin/${fullSolcVersion}`;
         const solcBin = require(solcBinPath);
         const solcInstance = solc.setupMethods(solcBin);
 
@@ -192,7 +189,7 @@ export class Compiler {
             };
         }
 
-        const artifactString = JSON.stringify(newArtifact, JSON_REPLACER, NUMBER_OF_JSON_SPACES);
+        const artifactString = stringifyWithFormatting(newArtifact);
         await writeFileAsync(currentArtifactPath, artifactString);
         consoleLog(`${contractBaseName} artifact saved!`);
     }
