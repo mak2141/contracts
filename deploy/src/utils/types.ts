@@ -31,6 +31,14 @@ export interface SolcErrors {
     [key: string]: boolean;
 }
 
+export interface CliOptions {
+    contractsDir: string;
+    networkId: number;
+    optimize: boolean;
+    artifactsDir: string;
+    jsonrpcPort: number;
+    gasPrice: string;
+}
 export interface CompilerOptions {
     contractsDir: string;
     networkId: number;

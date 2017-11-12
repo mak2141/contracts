@@ -1,6 +1,7 @@
 import * as yargs from 'yargs';
 import * as path from 'path';
-import {CompilerOptions, DeployerOptions} from './src/utils/types';
+import {CompilerOptions, DeployerOptions, CliOptions} from './src/utils/types';
+import {getNetworkIdIfExistsAsync} from './src/utils/network';
 import {commands} from './src/commands';
 
 const DEFAULT_OPTIMIZER_ENABLED = false;
@@ -10,7 +11,7 @@ const DEFAULT_NETWORK_ID = 50;
 const DEFAULT_JSONRPC_PORT = 8545;
 const DEFAULT_GAS_PRICE = '20000000000';
 
-const args = yargs
+const args: CliOptions = yargs
     .option('contracts-dir', {
         type: 'string',
         default: DEFAULT_CONTRACTS_DIR,
@@ -59,11 +60,13 @@ const onCompileCommand = async (): Promise<void> => {
 
 /**
  * Compiles all contracts and runs migration script with options passed in through CLI.
+ * Uses network ID of running node.
  */
 const onMigrateCommand = async (): Promise<void> => {
+    const networkIdIfExists = await getNetworkIdIfExistsAsync(args.jsonrpcPort);
     const compilerOpts: CompilerOptions = {
         contractsDir: args.contractsDir,
-        networkId: args.networkId,
+        networkId: networkIdIfExists,
         optimizerEnabled: args.optimize ? 1 : 0,
         artifactsDir: args.artifactsDir,
     };
@@ -72,7 +75,7 @@ const onMigrateCommand = async (): Promise<void> => {
     const deployerOpts: DeployerOptions = {
         artifactsDir: args.artifactsDir,
         jsonrpcPort: args.jsonrpcPort,
-        networkId: args.networkId,
+        networkId: networkIdIfExists,
         gasPrice: args.gasPrice,
     };
     await commands.migrateAsync(deployerOpts);
@@ -85,11 +88,11 @@ const commandBuilder = (): void => undefined;
 
 yargs
     .command('compile',
-             'compile contracts',
-             commandBuilder,
-             onCompileCommand)
+    'compile contracts',
+    commandBuilder,
+    onCompileCommand)
     .command('migrate',
-             'compile an deploy contracts using migration scripts',
-             commandBuilder,
-             onMigrateCommand)
+    'compile an deploy contracts using migration scripts',
+    commandBuilder,
+    onMigrateCommand)
     .argv;
