@@ -17,6 +17,7 @@ export class Deployer {
     private _networkId: number;
     private _web3: Web3;
     private _defaults: Partial<Web3.TxData>;
+    private _extraGas = 500000;
 
     constructor(opts: DeployerOptions) {
         this._artifactsDir = opts.artifactsDir;
@@ -50,7 +51,8 @@ export class Deployer {
         }
         const data = contractData.unlinked_binary;
         const accounts: string[] = await promisify(this._web3.eth.getAccounts)();
-        const gas = await promisify(this._web3.eth.estimateGas)({data});
+        const gasEstimate: number = await promisify(this._web3.eth.estimateGas)({data});
+        const gas = gasEstimate + this._extraGas;
         const txData: Partial<Web3.TxData> = {
             ...this._defaults,
             from: accounts[0],
@@ -60,11 +62,12 @@ export class Deployer {
         const abi = contractData.abi;
         const contract: Web3.Contract<Web3.ContractInstance> = this._web3.eth.contract(abi);
         // Deployment is not promisified because contract.new fires the callback twice
+        // contract is inferred as 'any' because TypeScript does is not able to read 'new' from the Contract interface
         return (contract as any).new(...args, txData, async (err: Error, res: any): Promise<Web3.ContractInstance> => {
             if (err) {
                 throw err;
             } else if (_.isUndefined(res.address) && !_.isUndefined(res.transactionHash)) {
-                consoleLog(`transactionHash: ${res.transactionHash}`);
+                consoleLog(`${contractName}.sol transactionHash: ${res.transactionHash}`);
             } else {
                 const web3ContractInstance: Web3.ContractInstance = res;
                 const deployedAddress = web3ContractInstance.address;
