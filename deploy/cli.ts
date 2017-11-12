@@ -2,7 +2,7 @@ import * as yargs from 'yargs';
 import * as path from 'path';
 import {CompilerOptions, DeployerOptions} from './src/utils/types';
 import {Compiler} from './src/compiler';
-import {runMigrations} from './migrations/migrate';
+import {runMigrationsAsync} from './migrations/migrate';
 
 const DEFAULT_OPTIMIZER_ENABLED = false;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
@@ -70,7 +70,7 @@ const onMigrateCommand = async (): Promise<void> => {
         networkId: args.networkId,
         gasPrice: args.gasPrice,
     };
-    await runMigrations(opts);
+    await runMigrationsAsync(opts);
 };
 
 /**
