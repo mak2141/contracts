@@ -27,34 +27,34 @@ const {consoleLog, stringifyWithFormatting} = utils;
 const SOLIDITY_FILE_EXTENSION = '.sol';
 
 export class Compiler {
-    private contractsDir: string;
-    private networkId: number;
-    private optimizerEnabled: number;
-    private artifactsDir: string;
-    private contractSources: ContractSources;
-    private solcErrors: Set<string>;
+    private _contractsDir: string;
+    private _networkId: number;
+    private _optimizerEnabled: number;
+    private _artifactsDir: string;
+    private _contractSources: ContractSources;
+    private _solcErrors: Set<string>;
 
     constructor(opts: CompilerOptions) {
-        this.contractsDir = opts.contractsDir;
-        this.networkId = opts.networkId;
-        this.optimizerEnabled = opts.optimizerEnabled;
-        this.artifactsDir = opts.artifactsDir;
-        this.solcErrors = new Set();
+        this._contractsDir = opts.contractsDir;
+        this._networkId = opts.networkId;
+        this._optimizerEnabled = opts.optimizerEnabled;
+        this._artifactsDir = opts.artifactsDir;
+        this._solcErrors = new Set();
     }
     /**
      * Compiles all Solidity files found in contractsDir and writes JSON artifacts to artifactsDir.
      */
     public async compileAllAsync(): Promise<void> {
         await this.createArtifactsDirIfDoesNotExistAsync();
-        this.contractSources = await this.getContractSourcesAsync(this.contractsDir);
+        this._contractSources = await this.getContractSourcesAsync(this._contractsDir);
 
-        const contractBaseNames = _.keys(this.contractSources);
+        const contractBaseNames = _.keys(this._contractSources);
         const compiledContractPromises = _.map(contractBaseNames, (contractBaseName: string): Promise<void> => {
             return this.compileContractAsync(contractBaseName);
         });
         await Promise.all(compiledContractPromises);
 
-        this.solcErrors.forEach(errMsg => {
+        this._solcErrors.forEach(errMsg => {
             consoleLog(errMsg);
         });
     }
@@ -102,13 +102,13 @@ export class Compiler {
      * @param contractBaseName Name of contract with '.sol' extension.
      */
     private async compileContractAsync(contractBaseName: string): Promise<void> {
-        if (_.isUndefined(this.contractSources)) {
+        if (_.isUndefined(this._contractSources)) {
             throw new Error('Contract sources not yet initialized');
         }
 
-        const source = this.contractSources[contractBaseName];
+        const source = this._contractSources[contractBaseName];
         const contractName = path.basename(contractBaseName, SOLIDITY_FILE_EXTENSION);
-        const currentArtifactPath = `${this.artifactsDir}/${contractName}.json`;
+        const currentArtifactPath = `${this._artifactsDir}/${contractName}.json`;
         const sourceHash = `0x${ethUtil.sha3(source).toString('hex')}`;
 
         let currentArtifactString: string;
@@ -122,10 +122,10 @@ export class Compiler {
             currentArtifactString = await readFileAsync(currentArtifactPath, opts);
             currentArtifact = JSON.parse(currentArtifactString);
             oldNetworks = currentArtifact.networks;
-            const oldNetwork: ContractData = oldNetworks[this.networkId];
+            const oldNetwork: ContractData = oldNetworks[this._networkId];
             shouldCompile = _.isUndefined(oldNetwork) ||
                             oldNetwork.keccak256 !== sourceHash ||
-                            oldNetwork.optimizer_enabled !== this.optimizerEnabled;
+                            oldNetwork.optimizer_enabled !== this._optimizerEnabled;
         } catch (err) {
             shouldCompile = true;
         }
@@ -148,13 +148,13 @@ export class Compiler {
             sources: input,
         };
         const compiled = solcInstance.compile(sourcesToCompile,
-                                              this.optimizerEnabled,
+                                              this._optimizerEnabled,
                                               this.findImportsIfSourcesExist.bind(this));
 
         if (!_.isUndefined(compiled.errors)) {
             _.each(compiled.errors, errMsg => {
                 const normalizedErrMsg = this.getNormalizedErrMsg(errMsg);
-                this.solcErrors.add(normalizedErrMsg);
+                this._solcErrors.add(normalizedErrMsg);
             });
         }
 
@@ -165,7 +165,7 @@ export class Compiler {
         const contractData: ContractData = {
             solc_version: solcVersion,
             keccak256: sourceHash,
-            optimizer_enabled: this.optimizerEnabled,
+            optimizer_enabled: this._optimizerEnabled,
             abi,
             unlinked_binary,
             updated_at,
@@ -177,14 +177,14 @@ export class Compiler {
                 ...currentArtifact,
                 networks: {
                     ...oldNetworks,
-                    [this.networkId]: contractData,
+                    [this._networkId]: contractData,
                 }
             };
         } else {
             newArtifact = {
                 contract_name: contractName,
                 networks: {
-                    [this.networkId]: contractData,
+                    [this._networkId]: contractData,
                 },
             };
         }
@@ -230,11 +230,11 @@ export class Compiler {
      * @return Import contents object containing source code of dependency.
      */
     private findImportsIfSourcesExist(importPath: string): ImportContents {
-        if (_.isUndefined(this.contractSources)) {
+        if (_.isUndefined(this._contractSources)) {
             throw new Error('Contract sources not yet initialized');
         }
         const contractBaseName = path.basename(importPath);
-        const source = this.contractSources[contractBaseName];
+        const source = this._contractSources[contractBaseName];
         const importContents: ImportContents = {
             contents: source,
         };
@@ -244,9 +244,9 @@ export class Compiler {
      * Creates the artifacts directory if it does not already exist.
      */
     private async createArtifactsDirIfDoesNotExistAsync(): Promise<void> {
-        if (!doesPathExistSync(this.artifactsDir)) {
+        if (!doesPathExistSync(this._artifactsDir)) {
             consoleLog('Creating artifacts directory...');
-            await mkdirAsync(this.artifactsDir);
+            await mkdirAsync(this._artifactsDir);
         }
     }
 }
