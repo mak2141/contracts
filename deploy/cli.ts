@@ -2,7 +2,7 @@ import * as yargs from 'yargs';
 import * as path from 'path';
 import {CompilerOptions, DeployerOptions} from './src/utils/types';
 import {Compiler} from './src/compiler';
-import {Deployer} from './src/deployer';
+import {runMigrations} from './migrations/migrate';
 
 const DEFAULT_OPTIMIZER_ENABLED = false;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
@@ -45,8 +45,9 @@ const args = yargs
     .help()
     .argv;
 
-const commandBuilder = (): void => undefined;
-
+/**
+ * Compiles all contracts with options passed in through CLI.
+ */
 const onCompileCommand = async (): Promise<void> => {
     const opts: CompilerOptions = {
         contractsDir: args.contractsDir,
@@ -58,6 +59,9 @@ const onCompileCommand = async (): Promise<void> => {
     await compiler.compileAllAsync();
 };
 
+/**
+ * Compiles all contracts and runs migration script with options passed in through CLI.
+ */
 const onMigrateCommand = async (): Promise<void> => {
     await onCompileCommand();
     const opts: DeployerOptions = {
@@ -66,9 +70,13 @@ const onMigrateCommand = async (): Promise<void> => {
         networkId: args.networkId,
         gasPrice: args.gasPrice,
     };
-    const deployer = new Deployer(opts);
-    await deployer.deploy('EtherToken', []);
+    await runMigrations(opts);
 };
+
+/**
+ * Builder function is expected for command argument, but not needed in this context.
+ */
+const commandBuilder = (): void => undefined;
 
 yargs
     .command('compile',

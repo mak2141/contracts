@@ -59,7 +59,7 @@ export class Deployer {
         };
         const abi = contractData.abi;
         const contract: Web3.Contract<Web3.ContractInstance> = this._web3.eth.contract(abi);
-        // Deployment is not promisified because contract.new fire the callback twice
+        // Deployment is not promisified because contract.new fires the callback twice
         return (contract as any).new(...args, txData, async (err: Error, res: any): Promise<Web3.ContractInstance> => {
             if (err) {
                 throw err;
