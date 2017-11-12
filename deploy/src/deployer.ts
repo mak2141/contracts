@@ -36,7 +36,7 @@ export class Deployer {
      * @param args Array of contract constructor arguments.
      * @return Deployed contract instance.
      */
-    public async deploy(contractName: string, args: any[]): Promise<Web3.ContractInstance> {
+    public async deployAsync(contractName: string, args: any[]): Promise<Web3.ContractInstance> {
         const artifactPath = `${this._artifactsDir}/${contractName}.json`;
         let contractArtifact: ContractArtifact;
         try {
