@@ -6,5 +6,8 @@ import {Deployer} from './../src/deployer';
  */
 export async function runMigrationsAsync(deployer: Deployer): Promise<void> {
     // Placeholder for full migrations
+    const tokenTransferProxy = await deployer.deployAsync('TokenTransferProxy', []);
+    const zrxToken = await deployer.deployAsync('ZRXToken', []);
+    await deployer.deployAsync('Exchange', [zrxToken.address, tokenTransferProxy.address]);
     await deployer.deployAsync('EtherToken', []);
 }
