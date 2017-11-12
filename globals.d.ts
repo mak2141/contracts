@@ -34,6 +34,10 @@ declare module 'es6-promisify' {
     export = promisify;
 }
 
+declare module 'web3-eth-abi' {
+    export function encodeParameters(typesArray: string[], parameters: any[]): string;
+}
+
 // Truffle injects the following into the global scope
 declare var artifacts: any;
 declare var contract: any;
