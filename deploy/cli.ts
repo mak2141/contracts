@@ -42,6 +42,10 @@ const args: CliOptions = yargs
         default: DEFAULT_GAS_PRICE,
         description: 'gasPrice to be used for transactions',
     })
+    .option('account', {
+        type: 'string',
+        description: 'account to use for deploying contracts',
+    })
     .help()
     .argv;
 
@@ -72,11 +76,15 @@ const onMigrateCommand = async (): Promise<void> => {
     };
     await commands.compileAsync(compilerOpts);
 
+    const defaults = {
+        gasPrice: args.gasPrice,
+        from: args.account,
+    };
     const deployerOpts: DeployerOptions = {
         artifactsDir: args.artifactsDir,
         jsonrpcPort: args.jsonrpcPort,
         networkId: networkIdIfExists,
-        gasPrice: args.gasPrice,
+        defaults,
     };
     await commands.migrateAsync(deployerOpts);
 };

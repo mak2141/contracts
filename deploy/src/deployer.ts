@@ -27,9 +27,7 @@ export class Deployer {
         const jsonrpcUrl = `http://localhost:${this._jsonrpcPort}`;
         const web3Provider = new Web3.providers.HttpProvider(jsonrpcUrl);
         this._web3 = new Web3(web3Provider);
-        this._defaults = {
-            gasPrice: opts.gasPrice,
-        };
+        this._defaults = opts.defaults;
     }
 
     /**
@@ -51,12 +49,18 @@ export class Deployer {
             throw new Error('No contract data found on this network');
         }
         const data = contractData.unlinked_binary;
-        const accounts: string[] = await promisify(this._web3.eth.getAccounts)();
+        let from: string;
+        if (_.isUndefined(this._defaults.from)) {
+            const accounts: string[] = await promisify(this._web3.eth.getAccounts)();
+            from = accounts[0];
+        } else {
+            from = this._defaults.from;
+        }
         const gasEstimate: number = await promisify(this._web3.eth.estimateGas)({data});
         const gas = gasEstimate + this._extraGas;
-        const txData: Partial<Web3.TxData> = {
-            ...this._defaults,
-            from: accounts[0],
+        const txData = {
+            gasPrice: this._defaults.gasPrice,
+            from,
             data,
             gas,
         };

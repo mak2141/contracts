@@ -38,6 +38,7 @@ export interface CliOptions {
     artifactsDir: string;
     jsonrpcPort: number;
     gasPrice: string;
+    account: string;
 }
 export interface CompilerOptions {
     contractsDir: string;
@@ -50,7 +51,7 @@ export interface DeployerOptions {
     artifactsDir: string;
     jsonrpcPort: number;
     networkId: number;
-    gasPrice: string;
+    defaults: Partial<Web3.TxData>;
 }
 
 export interface ContractSources {
