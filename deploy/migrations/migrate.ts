@@ -1,11 +1,10 @@
 import {Deployer} from './../src/deployer';
-import {DeployerOptions} from './../src/utils/types';
 
 /**
  * Custom migrations should be defined in this function. This will be called with the CLI 'migrate' command.
- * @param opts Environmental options passed in from CLI.
+ * @param deployer Deployer instance.
  */
-export async function runMigrationsAsync(opts: DeployerOptions): Promise<void> {
-    const deployer = new Deployer(opts);
+export async function runMigrationsAsync(deployer: Deployer): Promise<void> {
+    // Placeholder for full migrations
     await deployer.deployAsync('EtherToken', []);
 }
