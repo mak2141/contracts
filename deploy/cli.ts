@@ -11,7 +11,100 @@ const DEFAULT_NETWORK_ID = 50;
 const DEFAULT_JSONRPC_PORT = 8545;
 const DEFAULT_GAS_PRICE = '20000000000';
 
-const args: CliOptions = yargs
+/**
+ * Compiles all contracts with options passed in through CLI.
+ * @param argv Instance of process.argv provided by yargs.
+ */
+async function onCompileCommand(args: any): Promise<void> {
+    const opts: CompilerOptions = {
+        contractsDir: args.contractsDir,
+        networkId: args.networkId,
+        optimizerEnabled: args.optimize ? 1 : 0,
+        artifactsDir: args.artifactsDir,
+    };
+    await commands.compileAsync(opts);
+}
+/**
+ * Compiles all contracts and runs migration script with options passed in through CLI.
+ * Uses network ID of running node.
+ * @param argv Instance of process.argv provided by yargs.
+ */
+async function onMigrateCommand(argv: any): Promise<void> {
+    const networkIdIfExists = await getNetworkIdIfExistsAsync(argv.jsonrpcPort);
+    const compilerOpts: CompilerOptions = {
+        contractsDir: argv.contractsDir,
+        networkId: networkIdIfExists,
+        optimizerEnabled: argv.optimize ? 1 : 0,
+        artifactsDir: argv.artifactsDir,
+    };
+    await commands.compileAsync(compilerOpts);
+
+    const defaults = {
+        gasPrice: argv.gasPrice,
+        from: argv.account,
+    };
+    const deployerOpts: DeployerOptions = {
+        artifactsDir: argv.artifactsDir,
+        jsonrpcPort: argv.jsonrpcPort,
+        networkId: networkIdIfExists,
+        defaults,
+    };
+    await commands.migrateAsync(deployerOpts);
+}
+/**
+ * Deploys a single contract with provided name and args.
+ * @param argv Instance of process.argv provided by yargs.
+ */
+async function onDeployCommand(argv: any): Promise<void> {
+    const networkIdIfExists = await getNetworkIdIfExistsAsync(argv.jsonrpcPort);
+    const compilerOpts: CompilerOptions = {
+        contractsDir: argv.contractsDir,
+        networkId: networkIdIfExists,
+        optimizerEnabled: argv.optimize ? 1 : 0,
+        artifactsDir: argv.artifactsDir,
+    };
+    await commands.compileAsync(compilerOpts);
+
+    const defaults = {
+        gasPrice: argv.gasPrice,
+        from: argv.account,
+    };
+    const deployerOpts: DeployerOptions = {
+        artifactsDir: argv.artifactsDir,
+        jsonrpcPort: argv.jsonrpcPort,
+        networkId: networkIdIfExists,
+        defaults,
+    };
+    const deployerArgsString = argv.args;
+    const deployerArgs = deployerArgsString.split(',');
+    await commands.deployAsync(argv.contract, deployerArgs, deployerOpts);
+}
+/**
+ * Builder function is expected for command argument, but not needed in this context.
+ */
+function voidCommandBuilder(): void {
+    return;
+}
+/**
+ * Provides extra required options for deploy command.
+ * @param yargs yargs instance provided in builder function callback.
+ */
+function deployCommandBuilder(yargs: any) {
+    return yargs
+        .option('contract', {
+            type: 'string',
+            description: 'name of contract to deploy, exluding .sol extension',
+        })
+        .option('args', {
+            type: 'string',
+            description: 'comma separated list of constructor args to deploy contract with',
+        })
+        .demandOption(['contract', 'args'])
+        .help()
+        .argv;
+}
+
+yargs
     .option('contracts-dir', {
         type: 'string',
         default: DEFAULT_CONTRACTS_DIR,
@@ -46,61 +139,17 @@ const args: CliOptions = yargs
         type: 'string',
         description: 'account to use for deploying contracts',
     })
-    .help()
-    .argv;
-
-/**
- * Compiles all contracts with options passed in through CLI.
- */
-const onCompileCommand = async (): Promise<void> => {
-    const opts: CompilerOptions = {
-        contractsDir: args.contractsDir,
-        networkId: args.networkId,
-        optimizerEnabled: args.optimize ? 1 : 0,
-        artifactsDir: args.artifactsDir,
-    };
-    await commands.compileAsync(opts);
-};
-
-/**
- * Compiles all contracts and runs migration script with options passed in through CLI.
- * Uses network ID of running node.
- */
-const onMigrateCommand = async (): Promise<void> => {
-    const networkIdIfExists = await getNetworkIdIfExistsAsync(args.jsonrpcPort);
-    const compilerOpts: CompilerOptions = {
-        contractsDir: args.contractsDir,
-        networkId: networkIdIfExists,
-        optimizerEnabled: args.optimize ? 1 : 0,
-        artifactsDir: args.artifactsDir,
-    };
-    await commands.compileAsync(compilerOpts);
-
-    const defaults = {
-        gasPrice: args.gasPrice,
-        from: args.account,
-    };
-    const deployerOpts: DeployerOptions = {
-        artifactsDir: args.artifactsDir,
-        jsonrpcPort: args.jsonrpcPort,
-        networkId: networkIdIfExists,
-        defaults,
-    };
-    await commands.migrateAsync(deployerOpts);
-};
-
-/**
- * Builder function is expected for command argument, but not needed in this context.
- */
-const commandBuilder = (): void => undefined;
-
-yargs
     .command('compile',
     'compile contracts',
-    commandBuilder,
+    voidCommandBuilder,
     onCompileCommand)
     .command('migrate',
     'compile an deploy contracts using migration scripts',
-    commandBuilder,
+    voidCommandBuilder,
     onMigrateCommand)
+    .command('deploy',
+    'deploy a single contract with provided arguments',
+    deployCommandBuilder,
+    onDeployCommand)
+    .help()
     .argv;
