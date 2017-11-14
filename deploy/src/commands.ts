@@ -17,4 +17,3 @@ export const commands = {
         await deployer.deployAsync(contractName, args);
     },
 };
-

@@ -1,6 +1,6 @@
 import * as yargs from 'yargs';
 import * as path from 'path';
-import {CompilerOptions, DeployerOptions, CliOptions} from './src/utils/types';
+import {CompilerOptions, DeployerOptions} from './src/utils/types';
 import {getNetworkIdIfExistsAsync} from './src/utils/network';
 import {commands} from './src/commands';
 
