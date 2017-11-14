@@ -1,9 +1,12 @@
 import 'mocha';
 import * as chai from 'chai';
-import * as Web3 from 'web3';
 import {Compiler} from './../src/compiler';
 import {Deployer} from './../src/deployer';
-import {readFileAsync} from './../src/utils/fs_wrapper';
+import {
+    readFileAsync,
+    removeFileAsync,
+    doesPathExistSync
+} from './../src/utils/fs_wrapper';
 import {
     exchange_binary,
     constructor_args,
@@ -35,6 +38,11 @@ const deployerOpts: DeployerOptions = {
     },
 };
 
+beforeEach(async () => {
+    if (doesPathExistSync(exchangeArtifactPath)) {
+        await removeFileAsync(exchangeArtifactPath);
+    }
+});
 describe('#Compiler', () => {
     it('should create an Exchange artifact with the correct unlinked binary', async () => {
         const compiler = new Compiler(compilerOpts);

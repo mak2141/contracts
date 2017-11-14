@@ -7,3 +7,4 @@ export const writeFileAsync = promisify(fs.writeFile);
 export const mkdirAsync = promisify(fs.mkdir);
 export const doesPathExistSync = fs.existsSync;
 export const removeDirAsync = promisify(fs.rmdir);
+export const removeFileAsync = promisify(fs.unlink);
