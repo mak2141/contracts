@@ -1,25 +1,30 @@
 import * as yargs from 'yargs';
+import * as _ from 'lodash';
 import * as path from 'path';
-import {CompilerOptions, DeployerOptions} from './src/utils/types';
 import {getNetworkIdIfExistsAsync} from './src/utils/network';
 import {commands} from './src/commands';
+import {
+    CompilerOptions,
+    DeployerOptions,
+    CliOptions,
+} from './src/utils/types';
 
 const DEFAULT_OPTIMIZER_ENABLED = false;
 const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
 const DEFAULT_ARTIFACTS_DIR = `${path.resolve('build')}/artifacts/`;
 const DEFAULT_NETWORK_ID = 50;
 const DEFAULT_JSONRPC_PORT = 8545;
-const DEFAULT_GAS_PRICE = '20000000000';
+const DEFAULT_GAS_PRICE = (2 * (10 ** 9)).toString();
 
 /**
  * Compiles all contracts with options passed in through CLI.
  * @param argv Instance of process.argv provided by yargs.
  */
-async function onCompileCommand(args: any): Promise<void> {
+async function onCompileCommand(args: CliOptions): Promise<void> {
     const opts: CompilerOptions = {
         contractsDir: args.contractsDir,
         networkId: args.networkId,
-        optimizerEnabled: args.optimize ? 1 : 0,
+        optimizerEnabled: args.shouldOptimize ? 1 : 0,
         artifactsDir: args.artifactsDir,
     };
     await commands.compileAsync(opts);
@@ -29,12 +34,12 @@ async function onCompileCommand(args: any): Promise<void> {
  * Uses network ID of running node.
  * @param argv Instance of process.argv provided by yargs.
  */
-async function onMigrateCommand(argv: any): Promise<void> {
+async function onMigrateCommand(argv: CliOptions): Promise<void> {
     const networkIdIfExists = await getNetworkIdIfExistsAsync(argv.jsonrpcPort);
     const compilerOpts: CompilerOptions = {
         contractsDir: argv.contractsDir,
         networkId: networkIdIfExists,
-        optimizerEnabled: argv.optimize ? 1 : 0,
+        optimizerEnabled: argv.shouldOptimize ? 1 : 0,
         artifactsDir: argv.artifactsDir,
     };
     await commands.compileAsync(compilerOpts);
@@ -55,12 +60,12 @@ async function onMigrateCommand(argv: any): Promise<void> {
  * Deploys a single contract with provided name and args.
  * @param argv Instance of process.argv provided by yargs.
  */
-async function onDeployCommand(argv: any): Promise<void> {
+async function onDeployCommand(argv: CliOptions): Promise<void> {
     const networkIdIfExists = await getNetworkIdIfExistsAsync(argv.jsonrpcPort);
     const compilerOpts: CompilerOptions = {
         contractsDir: argv.contractsDir,
         networkId: networkIdIfExists,
-        optimizerEnabled: argv.optimize ? 1 : 0,
+        optimizerEnabled: argv.shouldOptimize ? 1 : 0,
         artifactsDir: argv.artifactsDir,
     };
     await commands.compileAsync(compilerOpts);
@@ -78,12 +83,6 @@ async function onDeployCommand(argv: any): Promise<void> {
     const deployerArgsString = argv.args;
     const deployerArgs = deployerArgsString.split(',');
     await commands.deployAsync(argv.contract, deployerArgs, deployerOpts);
-}
-/**
- * Builder function is expected for command argument, but not needed in this context.
- */
-function voidCommandBuilder(): void {
-    return;
 }
 /**
  * Provides extra required options for deploy command.
@@ -115,7 +114,7 @@ yargs
         default: DEFAULT_NETWORK_ID,
         description: 'mainnet=1, kovan=42, testrpc=50',
     })
-    .option('optimize', {
+    .option('should-optimize', {
         type: 'boolean',
         default: DEFAULT_OPTIMIZER_ENABLED,
         description: 'enable optimizer',
@@ -140,16 +139,16 @@ yargs
         description: 'account to use for deploying contracts',
     })
     .command('compile',
-    'compile contracts',
-    voidCommandBuilder,
-    onCompileCommand)
+             'compile contracts',
+             _.noop,
+             onCompileCommand)
     .command('migrate',
-    'compile an deploy contracts using migration scripts',
-    voidCommandBuilder,
-    onMigrateCommand)
+             'compile and deploy contracts using migration scripts',
+             _.noop,
+             onMigrateCommand)
     .command('deploy',
-    'deploy a single contract with provided arguments',
-    deployCommandBuilder,
-    onDeployCommand)
+             'deploy a single contract with provided arguments',
+             deployCommandBuilder,
+             onDeployCommand)
     .help()
     .argv;

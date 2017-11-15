@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import promisify = require('es6-promisify');
 
-export const readdirAsync = promisify(fs.readdir);
-export const readFileAsync = promisify(fs.readFile);
-export const writeFileAsync = promisify(fs.writeFile);
-export const mkdirAsync = promisify(fs.mkdir);
-export const doesPathExistSync = fs.existsSync;
-export const removeDirAsync = promisify(fs.rmdir);
-export const removeFileAsync = promisify(fs.unlink);
+export const fsWrapper = {
+    readdirAsync: promisify(fs.readdir),
+    readFileAsync: promisify(fs.readFile),
+    writeFileAsync: promisify(fs.writeFile),
+    mkdirAsync: promisify(fs.mkdir),
+    doesPathExistSync: fs.existsSync,
+    removeFileAsync: promisify(fs.unlink),
+};

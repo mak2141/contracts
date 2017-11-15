@@ -2,11 +2,7 @@ import 'mocha';
 import * as chai from 'chai';
 import {Compiler} from './../src/compiler';
 import {Deployer} from './../src/deployer';
-import {
-    readFileAsync,
-    removeFileAsync,
-    doesPathExistSync
-} from './../src/utils/fs_wrapper';
+import {fsWrapper} from './../src/utils/fs_wrapper';
 import {
     exchange_binary,
     constructor_args,
@@ -39,8 +35,8 @@ const deployerOpts: DeployerOptions = {
 };
 
 beforeEach(async () => {
-    if (doesPathExistSync(exchangeArtifactPath)) {
-        await removeFileAsync(exchangeArtifactPath);
+    if (fsWrapper.doesPathExistSync(exchangeArtifactPath)) {
+        await fsWrapper.removeFileAsync(exchangeArtifactPath);
     }
 });
 describe('#Compiler', () => {
@@ -50,7 +46,7 @@ describe('#Compiler', () => {
         const opts = {
             encoding: 'utf8',
         };
-        const exchangeArtifactString = await readFileAsync(exchangeArtifactPath, opts);
+        const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
         const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
         const exchangeContractData: ContractData = exchangeArtifact.networks[constants.networkId];
         // The last 43 bytes of the binaries are metadata which may not be equivalent
@@ -69,7 +65,7 @@ describe('#Deployer', () => {
         const opts = {
             encoding: 'utf8',
         };
-        const exchangeArtifactString = await readFileAsync(exchangeArtifactPath, opts);
+        const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
         const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
         const exchangeContractData: ContractData = exchangeArtifact.networks[constants.networkId];
         const exchangeAddress = exchangeContractInstance.address;

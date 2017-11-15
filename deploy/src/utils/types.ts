@@ -31,6 +31,18 @@ export interface SolcErrors {
     [key: string]: boolean;
 }
 
+export interface CliOptions {
+    artifactsDir: string;
+    contractsDir: string;
+    jsonrpcPort: number;
+    networkId: number;
+    shouldOptimize: boolean;
+    gasPrice: string;
+    account?: string;
+    contract?: string;
+    args?: string;
+}
+
 export interface CompilerOptions {
     contractsDir: string;
     networkId: number;
@@ -53,6 +65,7 @@ export interface ImportContents {
     contents: string;
 }
 
+// TODO: Consolidate with 0x.js definitions once types are moved into a separate package.
 export enum ZeroExError {
     ContractDoesNotExist = 'CONTRACT_DOES_NOT_EXIST',
     ExchangeContractDoesNotExist = 'EXCHANGE_CONTRACT_DOES_NOT_EXIST',

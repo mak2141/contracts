@@ -1,35 +1,34 @@
 import * as Web3 from 'web3';
 import * as _ from 'lodash';
+import promisify = require('es6-promisify');
 import {Contract} from './utils/contract';
 import {utils} from './utils/utils';
 import {encoder} from './utils/encoder';
-import {writeFileAsync} from './utils/fs_wrapper';
-import promisify = require('es6-promisify');
+import {fsWrapper} from './utils/fs_wrapper';
 import {
     ContractArtifact,
     DeployerOptions,
 } from './utils/types';
 
-const {consoleLog, stringifyWithFormatting} = utils;
+// Gas added to gas estimate to make sure there is sufficient gas for deployment.
+const extraGas = 500000;
 
 export class Deployer {
-    private _artifactsDir: string;
-    private _jsonrpcPort: number;
-    private _networkId: number;
-    private _web3: Web3;
-    private _defaults: Partial<Web3.TxData>;
-    private _extraGas = 500000;
+    private artifactsDir: string;
+    private jsonrpcPort: number;
+    private networkId: number;
+    private web3: Web3;
+    private defaults: Partial<Web3.TxData>;
 
     constructor(opts: DeployerOptions) {
-        this._artifactsDir = opts.artifactsDir;
-        this._jsonrpcPort = opts.jsonrpcPort;
-        this._networkId = opts.networkId;
-        const jsonrpcUrl = `http://localhost:${this._jsonrpcPort}`;
+        this.artifactsDir = opts.artifactsDir;
+        this.jsonrpcPort = opts.jsonrpcPort;
+        this.networkId = opts.networkId;
+        const jsonrpcUrl = `http://localhost:${this.jsonrpcPort}`;
         const web3Provider = new Web3.providers.HttpProvider(jsonrpcUrl);
-        this._web3 = new Web3(web3Provider);
-        this._defaults = opts.defaults;
+        this.web3 = new Web3(web3Provider);
+        this.defaults = opts.defaults;
     }
-
     /**
      * Loads contract artifact and deploys contract with given arguments.
      * @param contractName Name of the contract to deploy. Must match name of an artifact in artifacts directory.
@@ -37,38 +36,38 @@ export class Deployer {
      * @return Deployed contract instance.
      */
     public async deployAsync(contractName: string, args: any[]): Promise<Web3.ContractInstance> {
-        const artifactPath = `${this._artifactsDir}/${contractName}.json`;
+        const artifactPath = `${this.artifactsDir}/${contractName}.json`;
         let contractArtifact: ContractArtifact;
         try {
             contractArtifact = require(artifactPath);
         } catch (err) {
-            throw new Error('Contract artifact not found');
+            throw new Error(`Artifact not found for contract: ${contractName}`);
         }
-        const contractData = contractArtifact.networks[this._networkId];
+        const contractData = contractArtifact.networks[this.networkId];
         if (_.isUndefined(contractData)) {
-            throw new Error('No contract data found on this network');
+            throw new Error(`Data not found in artifact for contract: ${contractName}`);
         }
         const data = contractData.unlinked_binary;
         let from: string;
-        if (_.isUndefined(this._defaults.from)) {
-            const accounts: string[] = await promisify(this._web3.eth.getAccounts)();
+        if (_.isUndefined(this.defaults.from)) {
+            const accounts: string[] = await promisify(this.web3.eth.getAccounts)();
             from = accounts[0];
         } else {
-            from = this._defaults.from;
+            from = this.defaults.from;
         }
-        const gasEstimate: number = await promisify(this._web3.eth.estimateGas)({data});
-        const gas = gasEstimate + this._extraGas;
+        const gasEstimate: number = await promisify(this.web3.eth.estimateGas)({data});
+        const gas = gasEstimate + extraGas;
         const txData = {
-            gasPrice: this._defaults.gasPrice,
+            gasPrice: this.defaults.gasPrice,
             from,
             data,
             gas,
         };
         const abi = contractData.abi;
-        const contract: Web3.Contract<Web3.ContractInstance> = this._web3.eth.contract(abi);
+        const contract: Web3.Contract<Web3.ContractInstance> = this.web3.eth.contract(abi);
         const web3ContractInstance = await this.promisifiedDeploy(contract, args, txData);
         const deployedAddress = web3ContractInstance.address;
-        consoleLog(`${contractName}.sol successfully deployed at ${deployedAddress}`);
+        utils.consoleLog(`${contractName}.sol successfully deployed at ${deployedAddress}`);
         const encodedConstructorArgs = encoder.encodeConstructorArgsFromAbi(args, abi);
         const newContractData = {
             ...contractData,
@@ -79,12 +78,12 @@ export class Deployer {
             ...contractArtifact,
             networks: {
                 ...contractArtifact.networks,
-                [this._networkId]: newContractData,
+                [this.networkId]: newContractData,
             },
         };
-        const artifactString = stringifyWithFormatting(newArtifact);
-        await writeFileAsync(artifactPath, artifactString);
-        const promiWeb3ContractInstance = new Contract(web3ContractInstance, this._defaults);
+        const artifactString = utils.stringifyWithFormatting(newArtifact);
+        await fsWrapper.writeFileAsync(artifactPath, artifactString);
+        const promiWeb3ContractInstance = new Contract(web3ContractInstance, this.defaults);
         return promiWeb3ContractInstance;
     }
     /**
@@ -93,16 +92,18 @@ export class Deployer {
      * @param args Constructor arguments to use in deployment.
      * @param txData Tx options used for deployment.
      */
-    // tslint:disable-next-line:max-line-length
-    private promisifiedDeploy(contract: Web3.Contract<Web3.ContractInstance>, args: any[], txData: Partial<Web3.TxData>): Promise<any> {
+    private promisifiedDeploy(contract: Web3.Contract<Web3.ContractInstance>, args: any[],
+                              txData: Partial<Web3.TxData>): Promise<any> {
         const deployPromise = new Promise((resolve, reject) => {
-            // tslint:disable-next-line:max-line-length
-            // contract is inferred as 'any' because TypeScript does is not able to read 'new' from the Contract interface
+            /**
+             * Contract is inferred as 'any' because TypeScript
+             * is not able to read 'new' from the Contract interface
+             */
             (contract as any).new(...args, txData, async (err: Error, res: any): Promise<any> => {
                 if (err) {
                     reject(err);
                 } else if (_.isUndefined(res.address) && !_.isUndefined(res.transactionHash)) {
-                    consoleLog(`transactionHash: ${res.transactionHash}`);
+                    utils.consoleLog(`transactionHash: ${res.transactionHash}`);
                 } else {
                     resolve(res);
                 }
