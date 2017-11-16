@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as Web3 from 'web3';
 import BigNumber from 'bignumber.js';
 import promisify = require('es6-promisify');
-import {ZeroExError, Artifact} from './types';
+import {ZeroExError} from './types';
 import {Contract} from './contract';
 
 export class Web3Wrapper {
@@ -22,6 +22,10 @@ export class Web3Wrapper {
     }
     public isAddress(address: string): boolean {
         return this.web3.isAddress(address);
+    }
+    public getContractFromAbi(abi: Web3.ContractAbi): Web3.Contract<Web3.ContractInstance> {
+        const contract = this.web3.eth.contract(abi);
+        return contract;
     }
     public async isSenderAddressAvailableAsync(senderAddress: string): Promise<boolean> {
         const addresses = await this.getAvailableAddressesAsync();
@@ -50,30 +54,6 @@ export class Web3Wrapper {
         } catch (err) {
             return undefined;
         }
-    }
-    public async getContractInstanceFromArtifactAsync<A extends Web3.ContractInstance>(artifact: Artifact,
-                                                                                       address?: string): Promise<A> {
-        let contractAddress: string;
-        if (_.isUndefined(address)) {
-            const networkIdIfExists = await this.getNetworkIdIfExistsAsync();
-            if (_.isUndefined(networkIdIfExists)) {
-                throw new Error(ZeroExError.NoNetworkId);
-            }
-            if (_.isUndefined(artifact.networks[networkIdIfExists])) {
-                throw new Error(ZeroExError.ContractNotDeployedOnNetwork);
-            }
-            contractAddress = artifact.networks[networkIdIfExists].address.toLowerCase();
-        } else {
-            contractAddress = address;
-        }
-        const doesContractExist = await this.doesContractExistAtAddressAsync(contractAddress);
-        if (!doesContractExist) {
-            throw new Error(ZeroExError.ContractDoesNotExist);
-        }
-        const contractInstance = this.getContractInstance<A>(
-            artifact.abi, contractAddress,
-        );
-        return contractInstance;
     }
     public toWei(ethAmount: BigNumber): BigNumber {
         const balanceWei = this.web3.toWei(ethAmount, 'ether');
@@ -128,6 +108,10 @@ export class Web3Wrapper {
         };
         const logs = await this.sendRawPayloadAsync(payload);
         return logs;
+    }
+    public async estimateGasAsync(callData: Web3.CallData): Promise<number> {
+        const gasEstimate = await promisify(this.web3.eth.estimateGas)(callData);
+        return gasEstimate;
     }
     private getContractInstance<A extends Web3.ContractInstance>(abi: Web3.ContractAbi, address: string): A {
         const web3ContractInstance = this.web3.eth.contract(abi).at(address);

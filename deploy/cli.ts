@@ -1,7 +1,7 @@
 import * as yargs from 'yargs';
 import * as _ from 'lodash';
 import * as path from 'path';
-import {getNetworkIdIfExistsAsync} from './src/utils/network';
+import {network} from './src/utils/network';
 import {commands} from './src/commands';
 import {
     CompilerOptions,
@@ -35,7 +35,7 @@ async function onCompileCommand(args: CliOptions): Promise<void> {
  * @param argv Instance of process.argv provided by yargs.
  */
 async function onMigrateCommand(argv: CliOptions): Promise<void> {
-    const networkIdIfExists = await getNetworkIdIfExistsAsync(argv.jsonrpcPort);
+    const networkIdIfExists = await network.getNetworkIdIfExistsAsync(argv.jsonrpcPort);
     const compilerOpts: CompilerOptions = {
         contractsDir: argv.contractsDir,
         networkId: networkIdIfExists,
@@ -61,7 +61,7 @@ async function onMigrateCommand(argv: CliOptions): Promise<void> {
  * @param argv Instance of process.argv provided by yargs.
  */
 async function onDeployCommand(argv: CliOptions): Promise<void> {
-    const networkIdIfExists = await getNetworkIdIfExistsAsync(argv.jsonrpcPort);
+    const networkIdIfExists = await network.getNetworkIdIfExistsAsync(argv.jsonrpcPort);
     const compilerOpts: CompilerOptions = {
         contractsDir: argv.contractsDir,
         networkId: networkIdIfExists,

@@ -2,6 +2,7 @@ import * as Web3 from 'web3';
 import * as _ from 'lodash';
 import promisify = require('es6-promisify');
 import {Contract} from './utils/contract';
+import {Web3Wrapper} from './utils/web3_wrapper';
 import {utils} from './utils/utils';
 import {encoder} from './utils/encoder';
 import {fsWrapper} from './utils/fs_wrapper';
@@ -17,7 +18,7 @@ export class Deployer {
     private artifactsDir: string;
     private jsonrpcPort: number;
     private networkId: number;
-    private web3: Web3;
+    private web3Wrapper: Web3Wrapper;
     private defaults: Partial<Web3.TxData>;
 
     constructor(opts: DeployerOptions) {
@@ -26,8 +27,8 @@ export class Deployer {
         this.networkId = opts.networkId;
         const jsonrpcUrl = `http://localhost:${this.jsonrpcPort}`;
         const web3Provider = new Web3.providers.HttpProvider(jsonrpcUrl);
-        this.web3 = new Web3(web3Provider);
         this.defaults = opts.defaults;
+        this.web3Wrapper = new Web3Wrapper(web3Provider, this.defaults);
     }
     /**
      * Loads contract artifact and deploys contract with given arguments.
@@ -50,12 +51,12 @@ export class Deployer {
         const data = contractData.unlinked_binary;
         let from: string;
         if (_.isUndefined(this.defaults.from)) {
-            const accounts: string[] = await promisify(this.web3.eth.getAccounts)();
+            const accounts = await this.web3Wrapper.getAvailableAddressesAsync();
             from = accounts[0];
         } else {
             from = this.defaults.from;
         }
-        const gasEstimate: number = await promisify(this.web3.eth.estimateGas)({data});
+        const gasEstimate: number = await this.web3Wrapper.estimateGasAsync({data});
         const gas = gasEstimate + extraGas;
         const txData = {
             gasPrice: this.defaults.gasPrice,
@@ -64,7 +65,7 @@ export class Deployer {
             gas,
         };
         const abi = contractData.abi;
-        const contract: Web3.Contract<Web3.ContractInstance> = this.web3.eth.contract(abi);
+        const contract: Web3.Contract<Web3.ContractInstance> = this.web3Wrapper.getContractFromAbi(abi);
         const web3ContractInstance = await this.promisifiedDeploy(contract, args, txData);
         const deployedAddress = web3ContractInstance.address;
         utils.consoleLog(`${contractName}.sol successfully deployed at ${deployedAddress}`);
