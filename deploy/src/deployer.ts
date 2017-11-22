@@ -12,7 +12,7 @@ import {
 } from './utils/types';
 
 // Gas added to gas estimate to make sure there is sufficient gas for deployment.
-const extraGas = 500000;
+const EXTRA_GAS = 500000;
 
 export class Deployer {
     private artifactsDir: string;
@@ -57,7 +57,7 @@ export class Deployer {
             from = this.defaults.from;
         }
         const gasEstimate: number = await this.web3Wrapper.estimateGasAsync({data});
-        const gas = gasEstimate + extraGas;
+        const gas = gasEstimate + EXTRA_GAS;
         const txData = {
             gasPrice: this.defaults.gasPrice,
             from,
@@ -66,7 +66,7 @@ export class Deployer {
         };
         const abi = contractData.abi;
         const contract: Web3.Contract<Web3.ContractInstance> = this.web3Wrapper.getContractFromAbi(abi);
-        const web3ContractInstance = await this.promisifiedDeploy(contract, args, txData);
+        const web3ContractInstance = await this.promisifiedDeployAsync(contract, args, txData);
         const deployedAddress = web3ContractInstance.address;
         utils.consoleLog(`${contractName}.sol successfully deployed at ${deployedAddress}`);
         const encodedConstructorArgs = encoder.encodeConstructorArgsFromAbi(args, abi);
@@ -84,8 +84,8 @@ export class Deployer {
         };
         const artifactString = utils.stringifyWithFormatting(newArtifact);
         await fsWrapper.writeFileAsync(artifactPath, artifactString);
-        const promiWeb3ContractInstance = new Contract(web3ContractInstance, this.defaults);
-        return promiWeb3ContractInstance;
+        const contractInstance = new Contract(web3ContractInstance, this.defaults);
+        return contractInstance;
     }
     /**
      * A promisified version of `contract.new`.
@@ -93,14 +93,14 @@ export class Deployer {
      * @param args Constructor arguments to use in deployment.
      * @param txData Tx options used for deployment.
      */
-    private promisifiedDeploy(contract: Web3.Contract<Web3.ContractInstance>, args: any[],
-                              txData: Partial<Web3.TxData>): Promise<any> {
+    private promisifiedDeployAsync(contract: Web3.Contract<Web3.ContractInstance>, args: any[],
+                                   txData: Partial<Web3.TxData>): Promise<any> {
         const deployPromise = new Promise((resolve, reject) => {
             /**
              * Contract is inferred as 'any' because TypeScript
              * is not able to read 'new' from the Contract interface
              */
-            (contract as any).new(...args, txData, async (err: Error, res: any): Promise<any> => {
+            (contract as any).new(...args, txData, (err: Error, res: any): any => {
                 if (err) {
                     reject(err);
                 } else if (_.isUndefined(res.address) && !_.isUndefined(res.transactionHash)) {
