@@ -12,13 +12,13 @@ import {
 } from './utils/types';
 
 // Gas added to gas estimate to make sure there is sufficient gas for deployment.
-const EXTRA_GAS = 500000;
+const EXTRA_GAS = 200000;
 
 export class Deployer {
+    public web3Wrapper: Web3Wrapper;
     private artifactsDir: string;
     private jsonrpcPort: number;
     private networkId: number;
-    private web3Wrapper: Web3Wrapper;
     private defaults: Partial<Web3.TxData>;
 
     constructor(opts: DeployerOptions) {
@@ -36,7 +36,7 @@ export class Deployer {
      * @param args Array of contract constructor arguments.
      * @return Deployed contract instance.
      */
-    public async deployAsync(contractName: string, args: any[]): Promise<Web3.ContractInstance> {
+    public async deployAsync(contractName: string, args: any[] = []): Promise<Web3.ContractInstance> {
         const artifactPath = `${this.artifactsDir}/${contractName}.json`;
         let contractArtifact: ContractArtifact;
         try {
@@ -56,8 +56,14 @@ export class Deployer {
         } else {
             from = this.defaults.from;
         }
-        const gasEstimate: number = await this.web3Wrapper.estimateGasAsync({data});
-        const gas = gasEstimate + EXTRA_GAS;
+        let gas: number;
+        try {
+            const gasEstimate: number = await this.web3Wrapper.estimateGasAsync({ data });
+            gas = gasEstimate + EXTRA_GAS;
+        } catch (err) {
+            const block = await this.web3Wrapper.getBlockAsync('latest');
+            gas = block.gasLimit;
+        }
         const txData = {
             gasPrice: this.defaults.gasPrice,
             from,
@@ -94,7 +100,7 @@ export class Deployer {
      * @param txData Tx options used for deployment.
      */
     private promisifiedDeployAsync(contract: Web3.Contract<Web3.ContractInstance>, args: any[],
-                                   txData: Partial<Web3.TxData>): Promise<any> {
+                                   txData: Web3.TxData): Promise<any> {
         const deployPromise = new Promise((resolve, reject) => {
             /**
              * Contract is inferred as 'any' because TypeScript
