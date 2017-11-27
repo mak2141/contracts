@@ -61,7 +61,7 @@ describe('#Deployer', () => {
         await compiler.compileAllAsync();
         const deployer = new Deployer(deployerOpts);
         const exchangeConstructorArgs = [constants.zrxTokenAddress, constants.tokenTransferProxyAddress];
-        const exchangeContractInstance = await deployer.deployAsync('Exchange', exchangeConstructorArgs);
+        const exchangeContractInstance = await deployer.deployAndSaveAsync('Exchange', exchangeConstructorArgs);
         const opts = {
             encoding: 'utf8',
         };

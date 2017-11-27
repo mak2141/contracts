@@ -13,10 +13,10 @@ export const migrator = {
         const accounts: string[] = await web3Wrapper.getAvailableAddressesAsync();
 
         const independentContracts: Web3.ContractInstance[] = await Promise.all([
-            deployer.deployAsync('TokenTransferProxy'),
-            deployer.deployAsync('ZRXToken'),
-            deployer.deployAsync('EtherToken'),
-            deployer.deployAsync('TokenRegistry'),
+            deployer.deployAndSaveAsync('TokenTransferProxy'),
+            deployer.deployAndSaveAsync('ZRXToken'),
+            deployer.deployAndSaveAsync('EtherToken'),
+            deployer.deployAndSaveAsync('TokenRegistry'),
         ]);
         const [tokenTransferProxy, zrxToken, etherToken, tokenReg] = independentContracts;
 
@@ -26,8 +26,8 @@ export const migrator = {
         const secondsRequired = new BigNumber(0);
         const multiSigArgs = [owners, confirmationsRequired, secondsRequired, tokenTransferProxy.address];
         const dependentContracts: Web3.ContractInstance[] = await Promise.all([
-            deployer.deployAsync('Exchange', exchangeArgs),
-            deployer.deployAsync('MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress', multiSigArgs),
+            deployer.deployAndSaveAsync('Exchange', exchangeArgs),
+            deployer.deployAndSaveAsync('MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress', multiSigArgs),
         ]);
         const [exchange, multiSig] = dependentContracts;
 

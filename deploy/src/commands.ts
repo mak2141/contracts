@@ -14,6 +14,6 @@ export const commands = {
     },
     async deployAsync(contractName: string, args: any[], opts: DeployerOptions): Promise<void> {
         const deployer = new Deployer(opts);
-        await deployer.deployAsync(contractName, args);
+        await deployer.deployAndSaveAsync(contractName, args);
     },
 };
