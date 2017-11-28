@@ -91,3 +91,5 @@ export interface Token {
     ipfsHash: string;
     swarmHash: string;
 }
+
+export type DoneCallback = (err?: Error) => void;

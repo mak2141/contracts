@@ -13,6 +13,7 @@ import {
     ContractData,
     CompilerOptions,
     DeployerOptions,
+    DoneCallback,
 } from './../src/utils/types';
 
 const expect = chai.expect;
@@ -25,6 +26,7 @@ const compilerOpts: CompilerOptions = {
     networkId: constants.networkId,
     optimizerEnabled: constants.optimizerEnabled,
 };
+const compiler = new Compiler(compilerOpts);
 const deployerOpts: DeployerOptions = {
     artifactsDir,
     networkId: constants.networkId,
@@ -33,16 +35,23 @@ const deployerOpts: DeployerOptions = {
         gasPrice: constants.gasPrice,
     },
 };
+const deployer = new Deployer(deployerOpts);
 
-beforeEach(async () => {
-    if (fsWrapper.doesPathExistSync(exchangeArtifactPath)) {
-        await fsWrapper.removeFileAsync(exchangeArtifactPath);
-    }
+/* tslint:disable */
+beforeEach(function (done: DoneCallback) {
+    this.timeout(constants.timeoutMs);
+    (async () => {
+        if (fsWrapper.doesPathExistSync(exchangeArtifactPath)) {
+            await fsWrapper.removeFileAsync(exchangeArtifactPath);
+        }
+        await compiler.compileAllAsync();
+        done();
+    })().catch(done);
 });
+/* tslint:enable */
+
 describe('#Compiler', () => {
     it('should create an Exchange artifact with the correct unlinked binary', async () => {
-        const compiler = new Compiler(compilerOpts);
-        await compiler.compileAllAsync();
         const opts = {
             encoding: 'utf8',
         };
@@ -53,23 +62,38 @@ describe('#Compiler', () => {
         const unlinkedBinaryWithoutMetadata = exchangeContractData.unlinked_binary.slice(0, -86);
         const exchangeBinaryWithoutMetadata = exchange_binary.slice(0, -86);
         expect(unlinkedBinaryWithoutMetadata).to.equal(exchangeBinaryWithoutMetadata);
-    }).timeout(constants.timeoutMs);
+    });
 });
 describe('#Deployer', () => {
-    it('should save the correct contract address and constructor arguments to the Exchange artifact', async () => {
-        const compiler = new Compiler(compilerOpts);
-        await compiler.compileAllAsync();
-        const deployer = new Deployer(deployerOpts);
-        const exchangeConstructorArgs = [constants.zrxTokenAddress, constants.tokenTransferProxyAddress];
-        const exchangeContractInstance = await deployer.deployAndSaveAsync('Exchange', exchangeConstructorArgs);
-        const opts = {
-            encoding: 'utf8',
-        };
-        const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
-        const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
-        const exchangeContractData: ContractData = exchangeArtifact.networks[constants.networkId];
-        const exchangeAddress = exchangeContractInstance.address;
-        expect(exchangeAddress).to.be.equal(exchangeContractData.address);
-        expect(constructor_args).to.be.equal(exchangeContractData.constructor_args);
-    }).timeout(constants.timeoutMs);
+    describe('#deployAsync', () => {
+        it('should deploy the Exchange contract without updating the Exchange artifact', async () => {
+            const exchangeConstructorArgs = [constants.zrxTokenAddress, constants.tokenTransferProxyAddress];
+            const exchangeContractInstance = await deployer.deployAsync('Exchange', exchangeConstructorArgs);
+            const opts = {
+                encoding: 'utf8',
+            };
+            const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
+            const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
+            const exchangeContractData: ContractData = exchangeArtifact.networks[constants.networkId];
+            const exchangeAddress = exchangeContractInstance.address;
+            expect(exchangeAddress).to.not.be.undefined;
+            expect(exchangeContractData.address).to.be.undefined;
+            expect(exchangeContractData.constructor_args).to.be.undefined;
+        });
+    });
+    describe('#deployAndSaveAsync', () => {
+        it('should save the correct contract address and constructor arguments to the Exchange artifact', async () => {
+            const exchangeConstructorArgs = [constants.zrxTokenAddress, constants.tokenTransferProxyAddress];
+            const exchangeContractInstance = await deployer.deployAndSaveAsync('Exchange', exchangeConstructorArgs);
+            const opts = {
+                encoding: 'utf8',
+            };
+            const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
+            const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
+            const exchangeContractData: ContractData = exchangeArtifact.networks[constants.networkId];
+            const exchangeAddress = exchangeContractInstance.address;
+            expect(exchangeAddress).to.be.equal(exchangeContractData.address);
+            expect(constructor_args).to.be.equal(exchangeContractData.constructor_args);
+        });
+    });
 });
