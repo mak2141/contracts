@@ -25,17 +25,17 @@ declare module '*.json' {
 }
 
 declare module 'solc' {
-    function compile(sources: any, optimizerEnabled: number, findImports: (importPath: string) => any): any;
-    function setupMethods(solcBin: any): any;
-    export = {
-        compile,
-        setupMethods,
-    };
+    export function compile(sources: any, optimizerEnabled: number, findImports: (importPath: string) => any): any;
+    export function setupMethods(solcBin: any): any;
 }
 
 declare module 'es6-promisify' {
     function promisify(original: any, settings?: any): ((...arg: any[]) => Promise<any>);
     export = promisify;
+}
+
+declare module 'web3-eth-abi' {
+    export function encodeParameters(typesArray: string[], parameters: any[]): string;
 }
 
 // Truffle injects the following into the global scope

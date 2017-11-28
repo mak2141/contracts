@@ -7,13 +7,15 @@
     "test": "test"
   },
   "scripts": {
-    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./scripts/solc/solc_bin/* ./transpiled; tsc;",
+    "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./deploy/solc/solc_bin/* ./deploy/test/fixtures/contracts/**/* ./deploy/test/fixtures/contracts/* ./transpiled; tsc;",
     "test": "npm run transpile; truffle test",
-    "compile": "npm run transpile; node transpiled/scripts/cli.js",
+    "compile": "npm run transpile; node transpiled/deploy/cli.js compile",
     "migrate": "npm run transpile; truffle migrate",
+    "migrateCustom": "npm run transpile; node transpiled/deploy/cli.js migrate",
     "deploy": "npm run migrate --network kovan",
     "lint": "tslint migrations/*.ts test/**/*.ts util/*.ts",
-    "testrpc": "testrpc --networkId 50"
+    "testrpc": "testrpc --networkId 50",
+    "mocha": "npm run transpile; mocha transpiled/deploy/test/*_test.js"
   },
   "repository": {
     "type": "git",
@@ -27,30 +29,33 @@
   "homepage": "https://github.com/0xProject/0x-Smart-Contracts#readme",
   "devDependencies": {
     "@types/bluebird": "^3.5.3",
+    "@types/isomorphic-fetch": "^0.0.34",
     "@types/lodash": "^4.14.63",
-    "@types/node": "^7.0.13",
+    "@types/node": "^8.0.51",
+    "@types/request-promise-native": "^1.0.2",
+    "@types/yargs": "^8.0.2",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-as-promised-typescript-typings": "^0.0.3",
     "chai-bignumber": "^2.0.1",
     "chai-typescript-typings": "^0.0.0",
-    "@types/request-promise-native": "^1.0.2",
-    "@types/yargs": "^8.0.2",
     "copyfiles": "^1.2.0",
     "dirty-chai": "^2.0.1",
     "ethereumjs-testrpc": "4.0.1",
+    "mocha": "^4.0.1",
+    "solc": "^0.4.18",
     "truffle": "3.4.3",
+    "tslint": "^4.5.1",
+    "tslint-config-0xproject": "^0.0.2",
     "types-bn": "^0.0.1",
     "types-ethereumjs-util": "machinomy/types-ethereumjs-util",
-    "typescript": "^2.5.2",
-    "web3-typescript-typings": "^0.6.0",
-    "solc": "^0.4.15",
-    "yargs": "^8.0.2"
+    "typescript": "^2.6.1",
+    "web3-typescript-typings": "^0.7.1",
+    "yargs": "^10.0.3"
   },
   "dependencies": {
-    "0x.js": "^0.22.4",
-    "@types/isomorphic-fetch": "^0.0.34",
-    "bignumber.js": "0xproject/bignumber.js.git#feature/isBigNumber",
+    "0x.js": "^0.22.6",
+    "bignumber.js": "^4.1.0",
     "bluebird": "^3.5.0",
     "bn.js": "^4.11.6",
     "es6-promisify": "^5.0.0",
@@ -59,7 +64,7 @@
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.4",
     "request": "^2.81.0",
-    "tslint": "^4.5.1",
-    "tslint-config-0xproject": "^0.0.2"
+    "web3": "0.20.2",
+    "web3-eth-abi": "^1.0.0-beta.24"
   }
 }
