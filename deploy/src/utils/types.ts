@@ -82,3 +82,12 @@ export enum ZeroExError {
     NoNetworkId = 'NO_NETWORK_ID',
     SubscriptionNotFound = 'SUBSCRIPTION_NOT_FOUND',
 }
+
+export interface Token {
+    address?: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+    ipfsHash: string;
+    swarmHash: string;
+}

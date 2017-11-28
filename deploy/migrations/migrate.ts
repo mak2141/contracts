@@ -1,7 +1,11 @@
 import * as Web3 from 'web3';
+import * as _ from 'lodash';
 import {BigNumber} from 'bignumber.js';
 import {Deployer} from './../src/deployer';
+import {constants} from './../src/utils/constants';
 import {Web3Wrapper} from './../src/utils/web3_wrapper';
+import {tokenInfo} from './config/token_info';
+import {Token} from './../src/utils/types';
 
 export const migrator = {
     /**
@@ -34,6 +38,68 @@ export const migrator = {
         const owner = accounts[0];
         await tokenTransferProxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {from: owner});
         await tokenTransferProxy.transferOwnership.sendTransactionAsync(multiSig.address, {from: owner});
-        // // TODO: Add tokens to TokenRegistry
+
+        const tokensToRegister: Web3.ContractInstance[] = await Promise.all(
+            _.map(tokenInfo, (token: Token): Promise<Web3.ContractInstance> => {
+                const totalSupply = new BigNumber(0);
+                const args = [
+                    token.name,
+                    token.symbol,
+                    token.decimals,
+                    totalSupply,
+                ];
+                return deployer.deployAsync('DummyToken', args);
+            }),
+        );
+        const addTokenGasEstimate = await tokenReg.addToken.estimateGasAsync(
+            tokensToRegister[0].address,
+            tokenInfo[0].name,
+            tokenInfo[0].symbol,
+            tokenInfo[0].decimals,
+            tokenInfo[0].ipfsHash,
+            tokenInfo[0].swarmHash,
+            {from: owner},
+        );
+        const addTokenPromises = [
+            tokenReg.addToken.sendTransactionAsync(
+                zrxToken.address,
+                '0x Protocol Token',
+                'ZRX',
+                18,
+                constants.NULL_BYTES,
+                constants.NULL_BYTES,
+                {
+                    from: owner,
+                    gas: addTokenGasEstimate,
+                },
+            ),
+            tokenReg.addToken.sendTransactionAsync(
+                etherToken.address,
+                'Ether Token',
+                'WETH',
+                18,
+                constants.NULL_BYTES,
+                constants.NULL_BYTES,
+                {
+                    from: owner,
+                    gas: addTokenGasEstimate,
+                },
+            ),
+        ];
+        const addDummyTokenPromises = _.map(tokenInfo, (token: Token, i: number): Promise<void> => {
+            return tokenReg.addToken.sendTransactionAsync(
+                tokensToRegister[i].address,
+                token.name,
+                token.symbol,
+                token.decimals,
+                token.ipfsHash,
+                token.swarmHash,
+                {
+                    from: owner,
+                    gas: addTokenGasEstimate,
+                },
+            );
+        });
+        await Promise.all([...addDummyTokenPromises, ...addTokenPromises]);
     },
 };
